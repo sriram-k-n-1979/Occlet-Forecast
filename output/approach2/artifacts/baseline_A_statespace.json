@@ -1,0 +1,923 @@
+{
+  "member_id": "A",
+  "member_name": "Asha",
+  "forecaster": "StateSpace",
+  "model_version": "hurdle-lognormal-ar1-kalman-credibility-1.0",
+  "feature_hash": "9e080709c4d9",
+  "feature_schema": [
+    "start_available_balance",
+    "recurring_income_calendar",
+    "recurring_bill_calendar",
+    "p_spend_weekday",
+    "p_spend_weekend",
+    "mu_log_amount_by_daytype",
+    "sigma_within",
+    "phi_weekly_ar1",
+    "sigma_state",
+    "kalman_state",
+    "credibility_prior"
+  ],
+  "ledger_hash": "1fe8d9865057ee9a",
+  "frozen_inputs_hash": "b427ef5f0deee586",
+  "origin": "2026-10-27",
+  "seed": 7,
+  "paths": 2000,
+  "horizon_days": 90,
+  "start_available_balance": 1922.11,
+  "start_savings_balance": 750,
+  "average_daily_spend": 95.05,
+  "product_rules": {
+    "CourtesyPay": true,
+    "OdFee": 35,
+    "MaxFeesPerDay": 3,
+    "MinItemForFee": 15,
+    "CardOverdraftOptIn": false,
+    "NsfFee": 0,
+    "SavingsFirst": false
+  },
+  "recurring": [
+    {
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "kind": "Income",
+      "cadence": "Monthly",
+      "DayOfMonth": 8,
+      "PeriodDays": 30,
+      "Amount": 1500,
+      "amount_cv": 0,
+      "Occurrences": 24
+    },
+    {
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "kind": "Income",
+      "cadence": "Monthly",
+      "DayOfMonth": 23,
+      "PeriodDays": 30,
+      "Amount": 1500,
+      "amount_cv": 0,
+      "Occurrences": 24
+    },
+    {
+      "Description": "OAKWOOD APTS RENT",
+      "Category": "Rent",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 1,
+      "PeriodDays": 30,
+      "Amount": -1100,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "VERIZON WIRELESS AUTOPAY",
+      "Category": "Phone",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 3,
+      "PeriodDays": 30,
+      "Amount": -90,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "STATE FARM INSURANCE",
+      "Category": "Insurance",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 5,
+      "PeriodDays": 30,
+      "Amount": -160,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "PLANET FITNESS",
+      "Category": "Gym",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 10,
+      "PeriodDays": 30,
+      "Amount": -30,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "NETFLIX.COM",
+      "Category": "Subscription",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 12,
+      "PeriodDays": 30,
+      "Amount": -15.49,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 15,
+      "PeriodDays": 30,
+      "Amount": -134.8325,
+      "amount_cv": 0.156,
+      "Occurrences": 12
+    },
+    {
+      "Description": "SPOTIFY USA",
+      "Category": "Subscription",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 17,
+      "PeriodDays": 30,
+      "Amount": -11.99,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "CU AUTO LOAN PMT",
+      "Category": "Loan payment",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 20,
+      "PeriodDays": 30,
+      "Amount": -280,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "TRANSFER TO SAVINGS",
+      "Category": "Transfer",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 24,
+      "PeriodDays": 30,
+      "Amount": -50,
+      "amount_cv": 0,
+      "Occurrences": 12
+    }
+  ],
+  "known_future_events": [
+    {
+      "date": "2026-11-01",
+      "Description": "OAKWOOD APTS RENT",
+      "Category": "Rent",
+      "Amount": -1100
+    },
+    {
+      "date": "2026-11-03",
+      "Description": "VERIZON WIRELESS AUTOPAY",
+      "Category": "Phone",
+      "Amount": -90
+    },
+    {
+      "date": "2026-11-05",
+      "Description": "STATE FARM INSURANCE",
+      "Category": "Insurance",
+      "Amount": -160
+    },
+    {
+      "date": "2026-11-06",
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "Amount": 1500
+    },
+    {
+      "date": "2026-11-10",
+      "Description": "PLANET FITNESS",
+      "Category": "Gym",
+      "Amount": -30
+    },
+    {
+      "date": "2026-11-12",
+      "Description": "NETFLIX.COM",
+      "Category": "Subscription",
+      "Amount": -15.49
+    },
+    {
+      "date": "2026-11-15",
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "Amount": -134.8325
+    },
+    {
+      "date": "2026-11-17",
+      "Description": "SPOTIFY USA",
+      "Category": "Subscription",
+      "Amount": -11.99
+    },
+    {
+      "date": "2026-11-20",
+      "Description": "CU AUTO LOAN PMT",
+      "Category": "Loan payment",
+      "Amount": -280
+    },
+    {
+      "date": "2026-11-23",
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "Amount": 1500
+    },
+    {
+      "date": "2026-11-24",
+      "Description": "TRANSFER TO SAVINGS",
+      "Category": "Transfer",
+      "Amount": -50
+    },
+    {
+      "date": "2026-12-01",
+      "Description": "OAKWOOD APTS RENT",
+      "Category": "Rent",
+      "Amount": -1100
+    },
+    {
+      "date": "2026-12-03",
+      "Description": "VERIZON WIRELESS AUTOPAY",
+      "Category": "Phone",
+      "Amount": -90
+    },
+    {
+      "date": "2026-12-05",
+      "Description": "STATE FARM INSURANCE",
+      "Category": "Insurance",
+      "Amount": -160
+    },
+    {
+      "date": "2026-12-08",
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "Amount": 1500
+    },
+    {
+      "date": "2026-12-10",
+      "Description": "PLANET FITNESS",
+      "Category": "Gym",
+      "Amount": -30
+    },
+    {
+      "date": "2026-12-12",
+      "Description": "NETFLIX.COM",
+      "Category": "Subscription",
+      "Amount": -15.49
+    },
+    {
+      "date": "2026-12-15",
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "Amount": -134.8325
+    },
+    {
+      "date": "2026-12-17",
+      "Description": "SPOTIFY USA",
+      "Category": "Subscription",
+      "Amount": -11.99
+    },
+    {
+      "date": "2026-12-20",
+      "Description": "CU AUTO LOAN PMT",
+      "Category": "Loan payment",
+      "Amount": -280
+    },
+    {
+      "date": "2026-12-23",
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "Amount": 1500
+    },
+    {
+      "date": "2026-12-24",
+      "Description": "TRANSFER TO SAVINGS",
+      "Category": "Transfer",
+      "Amount": -50
+    },
+    {
+      "date": "2027-01-01",
+      "Description": "OAKWOOD APTS RENT",
+      "Category": "Rent",
+      "Amount": -1100
+    },
+    {
+      "date": "2027-01-03",
+      "Description": "VERIZON WIRELESS AUTOPAY",
+      "Category": "Phone",
+      "Amount": -90
+    },
+    {
+      "date": "2027-01-05",
+      "Description": "STATE FARM INSURANCE",
+      "Category": "Insurance",
+      "Amount": -160
+    },
+    {
+      "date": "2027-01-08",
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "Amount": 1500
+    },
+    {
+      "date": "2027-01-10",
+      "Description": "PLANET FITNESS",
+      "Category": "Gym",
+      "Amount": -30
+    },
+    {
+      "date": "2027-01-12",
+      "Description": "NETFLIX.COM",
+      "Category": "Subscription",
+      "Amount": -15.49
+    },
+    {
+      "date": "2027-01-15",
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "Amount": -134.8325
+    },
+    {
+      "date": "2027-01-17",
+      "Description": "SPOTIFY USA",
+      "Category": "Subscription",
+      "Amount": -11.99
+    },
+    {
+      "date": "2027-01-20",
+      "Description": "CU AUTO LOAN PMT",
+      "Category": "Loan payment",
+      "Amount": -280
+    },
+    {
+      "date": "2027-01-22",
+      "Description": "ACME LOGISTICS PAYROLL DIR DEP",
+      "Category": "Income",
+      "Amount": 1500
+    },
+    {
+      "date": "2027-01-24",
+      "Description": "TRANSFER TO SAVINGS",
+      "Category": "Transfer",
+      "Amount": -50
+    }
+  ],
+  "path": [
+    {
+      "date": "2026-10-28",
+      "q10": 1844.34,
+      "q50": 1905.36,
+      "q90": 1922.11
+    },
+    {
+      "date": "2026-10-29",
+      "q10": 1781.67,
+      "q50": 1878.77,
+      "q90": 1922.11
+    },
+    {
+      "date": "2026-10-30",
+      "q10": 1723.79,
+      "q50": 1847.87,
+      "q90": 1909.56
+    },
+    {
+      "date": "2026-10-31",
+      "q10": 1598.19,
+      "q50": 1789.61,
+      "q90": 1877.85
+    },
+    {
+      "date": "2026-11-01",
+      "q10": 383.21,
+      "q50": 626.57,
+      "q90": 744.98
+    },
+    {
+      "date": "2026-11-02",
+      "q10": 321.88,
+      "q50": 597.06,
+      "q90": 722.67
+    },
+    {
+      "date": "2026-11-03",
+      "q10": 184.66,
+      "q50": 478.73,
+      "q90": 614.02
+    },
+    {
+      "date": "2026-11-04",
+      "q10": 132.25,
+      "q50": 444.9,
+      "q90": 592.81
+    },
+    {
+      "date": "2026-11-05",
+      "q10": -62.75,
+      "q50": 252.95,
+      "q90": 411.69
+    },
+    {
+      "date": "2026-11-06",
+      "q10": 1368.72,
+      "q50": 1718.49,
+      "q90": 1886.65
+    },
+    {
+      "date": "2026-11-07",
+      "q10": 1260.87,
+      "q50": 1654.07,
+      "q90": 1844.21
+    },
+    {
+      "date": "2026-11-08",
+      "q10": 1156.87,
+      "q50": 1589.75,
+      "q90": 1798.95
+    },
+    {
+      "date": "2026-11-09",
+      "q10": 1126.86,
+      "q50": 1553.32,
+      "q90": 1776.07
+    },
+    {
+      "date": "2026-11-10",
+      "q10": 1050.42,
+      "q50": 1488.98,
+      "q90": 1724.76
+    },
+    {
+      "date": "2026-11-11",
+      "q10": 1007.9,
+      "q50": 1451.03,
+      "q90": 1692.48
+    },
+    {
+      "date": "2026-11-12",
+      "q10": 942.63,
+      "q50": 1402.65,
+      "q90": 1655.8
+    },
+    {
+      "date": "2026-11-13",
+      "q10": 892.67,
+      "q50": 1366.69,
+      "q90": 1634.24
+    },
+    {
+      "date": "2026-11-14",
+      "q10": 806.77,
+      "q50": 1293,
+      "q90": 1586.38
+    },
+    {
+      "date": "2026-11-15",
+      "q10": 575.2,
+      "q50": 1097.5,
+      "q90": 1389.82
+    },
+    {
+      "date": "2026-11-16",
+      "q10": 537.91,
+      "q50": 1065.09,
+      "q90": 1368.65
+    },
+    {
+      "date": "2026-11-17",
+      "q10": 485.02,
+      "q50": 1020.5,
+      "q90": 1337.69
+    },
+    {
+      "date": "2026-11-18",
+      "q10": 438.47,
+      "q50": 984.43,
+      "q90": 1310.83
+    },
+    {
+      "date": "2026-11-19",
+      "q10": 396.2,
+      "q50": 947.73,
+      "q90": 1286.48
+    },
+    {
+      "date": "2026-11-20",
+      "q10": 75.31,
+      "q50": 632.71,
+      "q90": 978.93
+    },
+    {
+      "date": "2026-11-21",
+      "q10": 0,
+      "q50": 566,
+      "q90": 930.32
+    },
+    {
+      "date": "2026-11-22",
+      "q10": 0,
+      "q50": 497.17,
+      "q90": 876.54
+    },
+    {
+      "date": "2026-11-23",
+      "q10": 1456.25,
+      "q50": 1963.47,
+      "q90": 2352.05
+    },
+    {
+      "date": "2026-11-24",
+      "q10": 1365.28,
+      "q50": 1875.64,
+      "q90": 2275.75
+    },
+    {
+      "date": "2026-11-25",
+      "q10": 1309.78,
+      "q50": 1843.5,
+      "q90": 2249.46
+    },
+    {
+      "date": "2026-11-26",
+      "q10": 1270.3,
+      "q50": 1807.65,
+      "q90": 2214.4
+    },
+    {
+      "date": "2026-11-27",
+      "q10": 1224.81,
+      "q50": 1770.21,
+      "q90": 2187.75
+    },
+    {
+      "date": "2026-11-28",
+      "q10": 1137.68,
+      "q50": 1705.78,
+      "q90": 2141.62
+    },
+    {
+      "date": "2026-11-29",
+      "q10": 1038.99,
+      "q50": 1633.06,
+      "q90": 2096.39
+    },
+    {
+      "date": "2026-11-30",
+      "q10": 1002.85,
+      "q50": 1592.9,
+      "q90": 2060.23
+    },
+    {
+      "date": "2026-12-01",
+      "q10": -132.15,
+      "q50": 461.26,
+      "q90": 936.24
+    },
+    {
+      "date": "2026-12-02",
+      "q10": -132.15,
+      "q50": 430.74,
+      "q90": 903.61
+    },
+    {
+      "date": "2026-12-03",
+      "q10": -257.15,
+      "q50": 310.04,
+      "q90": 783.91
+    },
+    {
+      "date": "2026-12-04",
+      "q10": -257.15,
+      "q50": 273.48,
+      "q90": 751.94
+    },
+    {
+      "date": "2026-12-05",
+      "q10": -452.15,
+      "q50": 42.47,
+      "q90": 538.67
+    },
+    {
+      "date": "2026-12-06",
+      "q10": -452.15,
+      "q50": 0,
+      "q90": 497.54
+    },
+    {
+      "date": "2026-12-07",
+      "q10": -452.15,
+      "q50": 0,
+      "q90": 461.19
+    },
+    {
+      "date": "2026-12-08",
+      "q10": 998.8,
+      "q50": 1482.62,
+      "q90": 1933.15
+    },
+    {
+      "date": "2026-12-09",
+      "q10": 941.54,
+      "q50": 1449.69,
+      "q90": 1908.33
+    },
+    {
+      "date": "2026-12-10",
+      "q10": 863.01,
+      "q50": 1380.31,
+      "q90": 1849.18
+    },
+    {
+      "date": "2026-12-11",
+      "q10": 814.26,
+      "q50": 1351.88,
+      "q90": 1822.31
+    },
+    {
+      "date": "2026-12-12",
+      "q10": 725.09,
+      "q50": 1267.74,
+      "q90": 1759.8
+    },
+    {
+      "date": "2026-12-13",
+      "q10": 651.67,
+      "q50": 1212.04,
+      "q90": 1701.54
+    },
+    {
+      "date": "2026-12-14",
+      "q10": 615.39,
+      "q50": 1182.46,
+      "q90": 1673.94
+    },
+    {
+      "date": "2026-12-15",
+      "q10": 435.77,
+      "q50": 1016.36,
+      "q90": 1521.36
+    },
+    {
+      "date": "2026-12-16",
+      "q10": 403.93,
+      "q50": 971.82,
+      "q90": 1484.95
+    },
+    {
+      "date": "2026-12-17",
+      "q10": 346.18,
+      "q50": 926.68,
+      "q90": 1446.18
+    },
+    {
+      "date": "2026-12-18",
+      "q10": 299.17,
+      "q50": 898.24,
+      "q90": 1410.69
+    },
+    {
+      "date": "2026-12-19",
+      "q10": 194.91,
+      "q50": 820.23,
+      "q90": 1358.3
+    },
+    {
+      "date": "2026-12-20",
+      "q10": -120.09,
+      "q50": 477.92,
+      "q90": 1019.46
+    },
+    {
+      "date": "2026-12-21",
+      "q10": -120.09,
+      "q50": 447.7,
+      "q90": 994.1
+    },
+    {
+      "date": "2026-12-22",
+      "q10": -120.09,
+      "q50": 409.96,
+      "q90": 968.36
+    },
+    {
+      "date": "2026-12-23",
+      "q10": 1328.28,
+      "q50": 1880.96,
+      "q90": 2444.4
+    },
+    {
+      "date": "2026-12-24",
+      "q10": 1239.89,
+      "q50": 1796.18,
+      "q90": 2362.72
+    },
+    {
+      "date": "2026-12-25",
+      "q10": 1187.37,
+      "q50": 1756.94,
+      "q90": 2334.17
+    },
+    {
+      "date": "2026-12-26",
+      "q10": 1103,
+      "q50": 1696.81,
+      "q90": 2286.36
+    },
+    {
+      "date": "2026-12-27",
+      "q10": 1023.61,
+      "q50": 1628.54,
+      "q90": 2236.43
+    },
+    {
+      "date": "2026-12-28",
+      "q10": 981.53,
+      "q50": 1600.55,
+      "q90": 2210.19
+    },
+    {
+      "date": "2026-12-29",
+      "q10": 939.27,
+      "q50": 1567.43,
+      "q90": 2183.39
+    },
+    {
+      "date": "2026-12-30",
+      "q10": 893,
+      "q50": 1536.69,
+      "q90": 2150.96
+    },
+    {
+      "date": "2026-12-31",
+      "q10": 847.76,
+      "q50": 1493.98,
+      "q90": 2133.71
+    },
+    {
+      "date": "2027-01-01",
+      "q10": -287.24,
+      "q50": 366.99,
+      "q90": 997.34
+    },
+    {
+      "date": "2027-01-02",
+      "q10": -287.24,
+      "q50": 297.9,
+      "q90": 947.55
+    },
+    {
+      "date": "2027-01-03",
+      "q10": -412.24,
+      "q50": 144.09,
+      "q90": 799.26
+    },
+    {
+      "date": "2027-01-04",
+      "q10": -412.24,
+      "q50": 99.48,
+      "q90": 774.43
+    },
+    {
+      "date": "2027-01-05",
+      "q10": -607.24,
+      "q50": -95.52,
+      "q90": 571.25
+    },
+    {
+      "date": "2027-01-06",
+      "q10": -607.24,
+      "q50": -95.52,
+      "q90": 545.23
+    },
+    {
+      "date": "2027-01-07",
+      "q10": -607.24,
+      "q50": -95.52,
+      "q90": 524.05
+    },
+    {
+      "date": "2027-01-08",
+      "q10": 846.88,
+      "q50": 1365.98,
+      "q90": 1990.58
+    },
+    {
+      "date": "2027-01-09",
+      "q10": 757.22,
+      "q50": 1298.64,
+      "q90": 1932.56
+    },
+    {
+      "date": "2027-01-10",
+      "q10": 636.65,
+      "q50": 1212.45,
+      "q90": 1846.24
+    },
+    {
+      "date": "2027-01-11",
+      "q10": 591.41,
+      "q50": 1176.87,
+      "q90": 1815.48
+    },
+    {
+      "date": "2027-01-12",
+      "q10": 541.72,
+      "q50": 1131.46,
+      "q90": 1779.4
+    },
+    {
+      "date": "2027-01-13",
+      "q10": 483.76,
+      "q50": 1093.62,
+      "q90": 1749
+    },
+    {
+      "date": "2027-01-14",
+      "q10": 433.35,
+      "q50": 1059.5,
+      "q90": 1725.52
+    },
+    {
+      "date": "2027-01-15",
+      "q10": 266.39,
+      "q50": 895.65,
+      "q90": 1561.51
+    },
+    {
+      "date": "2027-01-16",
+      "q10": 163.61,
+      "q50": 828.65,
+      "q90": 1503.57
+    },
+    {
+      "date": "2027-01-17",
+      "q10": 61.09,
+      "q50": 755.32,
+      "q90": 1439.27
+    },
+    {
+      "date": "2027-01-18",
+      "q10": 21.68,
+      "q50": 720.3,
+      "q90": 1418.44
+    },
+    {
+      "date": "2027-01-19",
+      "q10": 0,
+      "q50": 688.58,
+      "q90": 1381.99
+    },
+    {
+      "date": "2027-01-20",
+      "q10": -315,
+      "q50": 380.97,
+      "q90": 1065.81
+    },
+    {
+      "date": "2027-01-21",
+      "q10": -315,
+      "q50": 347.51,
+      "q90": 1038.12
+    },
+    {
+      "date": "2027-01-22",
+      "q10": 1178.92,
+      "q50": 1810.5,
+      "q90": 2516.6
+    },
+    {
+      "date": "2027-01-23",
+      "q10": 1113.3,
+      "q50": 1737.9,
+      "q90": 2461.99
+    },
+    {
+      "date": "2027-01-24",
+      "q10": 977.25,
+      "q50": 1622.07,
+      "q90": 2353.48
+    },
+    {
+      "date": "2027-01-25",
+      "q10": 941.67,
+      "q50": 1591.05,
+      "q90": 2316.09
+    }
+  ],
+  "metrics": {
+    "headline_slack": {
+      "30d": 19.02,
+      "60d": 17.85,
+      "90d": 16.74
+    },
+    "true_slack": {
+      "30d": 19.02,
+      "60d": 17.85,
+      "90d": 16.74
+    },
+    "lowest_true_slack_median_path": -2.05,
+    "lowest_true_slack_p10": -7.04,
+    "lowest_q50_date": "2027-01-05",
+    "risk_days": 20,
+    "p_overdraft": 0.635,
+    "expected_courtesy_fees": 2.58,
+    "expected_fee_dollars": 90.48
+  },
+  "explanation": "Your balance is likely lowest on Jan 05 (about $-96, -1.0 days of spending). What pulls it down: rent $1,100 on Jan 01, phone $90 on Jan 03, insurance $160 on Jan 05. Payday on Jan 08 brings it back."
+}

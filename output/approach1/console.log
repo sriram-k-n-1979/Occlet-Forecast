@@ -1,0 +1,11 @@
+Loaded 5 members from /home/claude/Occlet-Forecast/data/members_ledger.xlsx; forecast origin 2026-10-27
+  A Asha  headline90= 18.3d  lowestTrue=  0.0d  P(od)= 50%  fees=$  84  → 0.0 days baseline → +0.8 (Move phone + insurance + subscription autopay to the day after payday) → +0.8 (Trim shopping by 25% (21% of everyday spend)) → +1.8 (Ask to move the rent due date to the day after payday) → 3.4 days
+  B Ben   headline90= 30.6d  lowestTrue= 11.3d  P(od)=  7%  fees=$   5  → 11.3 days baseline → 11.3 days
+  C Chen  headline90= 62.4d  lowestTrue= 56.7d  P(od)=  0%  fees=$   0  → 56.7 days baseline → 56.7 days
+  D Dee   headline90= 31.9d  lowestTrue= 14.8d  P(od)=  6%  fees=$   5  → 14.8 days baseline → 14.8 days
+  E Eli   headline90=  2.0d  lowestTrue= -8.7d  P(od)=100%  fees=$ 268  → -8.7 days baseline → +0.9 (Ask to move the rent due date to the day after payday) → -7.8 days
+Back-testing (rolling origins, 2 weeks apart)...
+  30d: in 80% band 80% (gate 75-85%: PASS), below q10 13% (target ~10%: PASS), scaled pinball 0.81 days
+  60d: in 80% band 80% (gate 75-85%: PASS), below q10 14% (target ~10%: PASS), scaled pinball 1.13 days
+  90d: in 80% band 79% (gate 75-85%: PASS), below q10 15% (target ~10%: PASS), scaled pinball 1.33 days
+Wrote /home/claude/Occlet-Forecast/output/approach1 in 7.6s

@@ -1,0 +1,840 @@
+{
+  "member_id": "E",
+  "member_name": "Eli",
+  "forecaster": "LightGBM",
+  "model_version": "lightgbm-4.5.0-quantile-cqr-copula-1.0",
+  "feature_hash": "adbd38fdc756",
+  "feature_schema": [
+    "horizon_days",
+    "spend7_over_spend90",
+    "spend30_over_spend90",
+    "spend_cv30",
+    "weekend_share",
+    "holiday_share",
+    "cushion_days",
+    "overdraft_fees_90d",
+    "days_to_payday",
+    "known_net_flow_ratio",
+    "tight_windows",
+    "tenure_days",
+    "courtesy_pay",
+    "direct_deposit",
+    "alerts_on",
+    "origin_day_of_month",
+    "origin_day_of_week",
+    "income_cv",
+    "log_spend_scale"
+  ],
+  "ledger_hash": "51c58face57f9cfe",
+  "frozen_inputs_hash": "369f548ca4ad49f6",
+  "origin": "2026-10-27",
+  "seed": 7,
+  "paths": 2000,
+  "horizon_days": 90,
+  "start_available_balance": 502.26,
+  "start_savings_balance": 0,
+  "average_daily_spend": 78.1,
+  "product_rules": {
+    "CourtesyPay": true,
+    "OdFee": 35,
+    "MaxFeesPerDay": 3,
+    "MinItemForFee": 15,
+    "CardOverdraftOptIn": false,
+    "NsfFee": 0,
+    "SavingsFirst": false
+  },
+  "recurring": [
+    {
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "kind": "Income",
+      "cadence": "Weekly",
+      "DayOfMonth": 0,
+      "PeriodDays": 7,
+      "Amount": 559.3107692307692,
+      "amount_cv": 0.248,
+      "Occurrences": 53
+    },
+    {
+      "Description": "PARKVIEW RENT",
+      "Category": "Rent",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 1,
+      "PeriodDays": 30,
+      "Amount": -980,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "BOOST MOBILE",
+      "Category": "Phone",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 5,
+      "PeriodDays": 30,
+      "Amount": -60,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "NATIONWIDE AUTO INS",
+      "Category": "Insurance",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 9,
+      "PeriodDays": 30,
+      "Amount": -185,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "CAPITAL CARD MIN PAYMENT",
+      "Category": "Card payment",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 18,
+      "PeriodDays": 30,
+      "Amount": -168,
+      "amount_cv": 0,
+      "Occurrences": 12
+    },
+    {
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 22,
+      "PeriodDays": 30,
+      "Amount": -91.20083333333332,
+      "amount_cv": 0.067,
+      "Occurrences": 12
+    }
+  ],
+  "known_future_events": [
+    {
+      "date": "2026-11-01",
+      "Description": "PARKVIEW RENT",
+      "Category": "Rent",
+      "Amount": -980
+    },
+    {
+      "date": "2026-11-03",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-11-05",
+      "Description": "BOOST MOBILE",
+      "Category": "Phone",
+      "Amount": -60
+    },
+    {
+      "date": "2026-11-09",
+      "Description": "NATIONWIDE AUTO INS",
+      "Category": "Insurance",
+      "Amount": -185
+    },
+    {
+      "date": "2026-11-10",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-11-17",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-11-18",
+      "Description": "CAPITAL CARD MIN PAYMENT",
+      "Category": "Card payment",
+      "Amount": -168
+    },
+    {
+      "date": "2026-11-22",
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "Amount": -91.20083333333332
+    },
+    {
+      "date": "2026-11-24",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-12-01",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-12-01",
+      "Description": "PARKVIEW RENT",
+      "Category": "Rent",
+      "Amount": -980
+    },
+    {
+      "date": "2026-12-05",
+      "Description": "BOOST MOBILE",
+      "Category": "Phone",
+      "Amount": -60
+    },
+    {
+      "date": "2026-12-08",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-12-09",
+      "Description": "NATIONWIDE AUTO INS",
+      "Category": "Insurance",
+      "Amount": -185
+    },
+    {
+      "date": "2026-12-15",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-12-18",
+      "Description": "CAPITAL CARD MIN PAYMENT",
+      "Category": "Card payment",
+      "Amount": -168
+    },
+    {
+      "date": "2026-12-22",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2026-12-22",
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "Amount": -91.20083333333332
+    },
+    {
+      "date": "2026-12-29",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2027-01-01",
+      "Description": "PARKVIEW RENT",
+      "Category": "Rent",
+      "Amount": -980
+    },
+    {
+      "date": "2027-01-05",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2027-01-05",
+      "Description": "BOOST MOBILE",
+      "Category": "Phone",
+      "Amount": -60
+    },
+    {
+      "date": "2027-01-09",
+      "Description": "NATIONWIDE AUTO INS",
+      "Category": "Insurance",
+      "Amount": -185
+    },
+    {
+      "date": "2027-01-12",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2027-01-18",
+      "Description": "CAPITAL CARD MIN PAYMENT",
+      "Category": "Card payment",
+      "Amount": -168
+    },
+    {
+      "date": "2027-01-19",
+      "Description": "RIDEFLOW DRIVER PAYOUT",
+      "Category": "Income",
+      "Amount": 559.3107692307692
+    },
+    {
+      "date": "2027-01-22",
+      "Description": "CITY UTILITIES",
+      "Category": "Utilities",
+      "Amount": -91.20083333333332
+    }
+  ],
+  "path": [
+    {
+      "date": "2026-10-28",
+      "q10": 404.61,
+      "q50": 468.51,
+      "q90": 502.26
+    },
+    {
+      "date": "2026-10-29",
+      "q10": 308.52,
+      "q50": 427.7,
+      "q90": 493.15
+    },
+    {
+      "date": "2026-10-30",
+      "q10": 221.99,
+      "q50": 386.07,
+      "q90": 471.29
+    },
+    {
+      "date": "2026-10-31",
+      "q10": 177.25,
+      "q50": 325.27,
+      "q90": 421.74
+    },
+    {
+      "date": "2026-11-01",
+      "q10": -837.75,
+      "q50": -689.73,
+      "q90": -593.26
+    },
+    {
+      "date": "2026-11-02",
+      "q10": -837.75,
+      "q50": -689.73,
+      "q90": -593.26
+    },
+    {
+      "date": "2026-11-03",
+      "q10": -344.01,
+      "q50": -150.49,
+      "q90": 29.41
+    },
+    {
+      "date": "2026-11-04",
+      "q10": -344.01,
+      "q50": -150.49,
+      "q90": 0
+    },
+    {
+      "date": "2026-11-05",
+      "q10": -439.01,
+      "q50": -245.49,
+      "q90": -95
+    },
+    {
+      "date": "2026-11-06",
+      "q10": -439.01,
+      "q50": -245.49,
+      "q90": -95
+    },
+    {
+      "date": "2026-11-07",
+      "q10": -439.01,
+      "q50": -245.49,
+      "q90": -95
+    },
+    {
+      "date": "2026-11-08",
+      "q10": -439.01,
+      "q50": -245.49,
+      "q90": -95
+    },
+    {
+      "date": "2026-11-09",
+      "q10": -659.01,
+      "q50": -465.49,
+      "q90": -315
+    },
+    {
+      "date": "2026-11-10",
+      "q10": -177.51,
+      "q50": 42.49,
+      "q90": 308.75
+    },
+    {
+      "date": "2026-11-11",
+      "q10": -177.51,
+      "q50": 2.24,
+      "q90": 270.28
+    },
+    {
+      "date": "2026-11-12",
+      "q10": -177.51,
+      "q50": 0,
+      "q90": 226.73
+    },
+    {
+      "date": "2026-11-13",
+      "q10": -177.51,
+      "q50": 0,
+      "q90": 190.07
+    },
+    {
+      "date": "2026-11-14",
+      "q10": -177.51,
+      "q50": 0,
+      "q90": 147.93
+    },
+    {
+      "date": "2026-11-15",
+      "q10": -177.51,
+      "q50": 0,
+      "q90": 100.76
+    },
+    {
+      "date": "2026-11-16",
+      "q10": -177.51,
+      "q50": 0,
+      "q90": 68.03
+    },
+    {
+      "date": "2026-11-17",
+      "q10": 277.78,
+      "q50": 478.46,
+      "q90": 726.31
+    },
+    {
+      "date": "2026-11-18",
+      "q10": 67.63,
+      "q50": 270.9,
+      "q90": 518.39
+    },
+    {
+      "date": "2026-11-19",
+      "q10": 26.13,
+      "q50": 228.32,
+      "q90": 479.67
+    },
+    {
+      "date": "2026-11-20",
+      "q10": 0,
+      "q50": 188.28,
+      "q90": 444.59
+    },
+    {
+      "date": "2026-11-21",
+      "q10": 0,
+      "q50": 137.11,
+      "q90": 397.65
+    },
+    {
+      "date": "2026-11-22",
+      "q10": -129.03,
+      "q50": 0,
+      "q90": 265.12
+    },
+    {
+      "date": "2026-11-23",
+      "q10": -129.03,
+      "q50": 0,
+      "q90": 239.16
+    },
+    {
+      "date": "2026-11-24",
+      "q10": 279.85,
+      "q50": 510.17,
+      "q90": 829.05
+    },
+    {
+      "date": "2026-11-25",
+      "q10": 233.26,
+      "q50": 466.02,
+      "q90": 784.56
+    },
+    {
+      "date": "2026-11-26",
+      "q10": 189.65,
+      "q50": 422.01,
+      "q90": 740.85
+    },
+    {
+      "date": "2026-11-27",
+      "q10": 138.86,
+      "q50": 380.1,
+      "q90": 694.53
+    },
+    {
+      "date": "2026-11-28",
+      "q10": 72.9,
+      "q50": 323.77,
+      "q90": 638.5
+    },
+    {
+      "date": "2026-11-29",
+      "q10": 0,
+      "q50": 262.16,
+      "q90": 592.04
+    },
+    {
+      "date": "2026-11-30",
+      "q10": 0,
+      "q50": 220.22,
+      "q90": 550.19
+    },
+    {
+      "date": "2026-12-01",
+      "q10": -523.97,
+      "q50": -236.01,
+      "q90": 150.72
+    },
+    {
+      "date": "2026-12-02",
+      "q10": -523.97,
+      "q50": -236.01,
+      "q90": 107.36
+    },
+    {
+      "date": "2026-12-03",
+      "q10": -523.97,
+      "q50": -236.01,
+      "q90": 69.86
+    },
+    {
+      "date": "2026-12-04",
+      "q10": -523.97,
+      "q50": -236.01,
+      "q90": 28.74
+    },
+    {
+      "date": "2026-12-05",
+      "q10": -618.97,
+      "q50": -331.01,
+      "q90": -66.26
+    },
+    {
+      "date": "2026-12-06",
+      "q10": -618.97,
+      "q50": -331.01,
+      "q90": -66.26
+    },
+    {
+      "date": "2026-12-07",
+      "q10": -618.97,
+      "q50": -331.01,
+      "q90": -66.26
+    },
+    {
+      "date": "2026-12-08",
+      "q10": -102.51,
+      "q50": 194.73,
+      "q90": 546.25
+    },
+    {
+      "date": "2026-12-09",
+      "q10": -322.51,
+      "q50": 0,
+      "q90": 324.29
+    },
+    {
+      "date": "2026-12-10",
+      "q10": -322.51,
+      "q50": 0,
+      "q90": 288.26
+    },
+    {
+      "date": "2026-12-11",
+      "q10": -322.51,
+      "q50": 0,
+      "q90": 249.83
+    },
+    {
+      "date": "2026-12-12",
+      "q10": -322.51,
+      "q50": 0,
+      "q90": 196.84
+    },
+    {
+      "date": "2026-12-13",
+      "q10": -322.51,
+      "q50": 0,
+      "q90": 142.92
+    },
+    {
+      "date": "2026-12-14",
+      "q10": -322.51,
+      "q50": 0,
+      "q90": 105.11
+    },
+    {
+      "date": "2026-12-15",
+      "q10": 137.43,
+      "q50": 428.98,
+      "q90": 723.21
+    },
+    {
+      "date": "2026-12-16",
+      "q10": 85.63,
+      "q50": 386.6,
+      "q90": 684.85
+    },
+    {
+      "date": "2026-12-17",
+      "q10": 39.04,
+      "q50": 343.13,
+      "q90": 646.55
+    },
+    {
+      "date": "2026-12-18",
+      "q10": -163.96,
+      "q50": 133.52,
+      "q90": 440.12
+    },
+    {
+      "date": "2026-12-19",
+      "q10": -163.96,
+      "q50": 77.98,
+      "q90": 388.63
+    },
+    {
+      "date": "2026-12-20",
+      "q10": -163.96,
+      "q50": 18.98,
+      "q90": 343.06
+    },
+    {
+      "date": "2026-12-21",
+      "q10": -163.96,
+      "q50": 0,
+      "q90": 308.32
+    },
+    {
+      "date": "2026-12-22",
+      "q10": 202.35,
+      "q50": 457.53,
+      "q90": 811.09
+    },
+    {
+      "date": "2026-12-23",
+      "q10": 155.62,
+      "q50": 414.97,
+      "q90": 779.13
+    },
+    {
+      "date": "2026-12-24",
+      "q10": 108.36,
+      "q50": 370.45,
+      "q90": 742.8
+    },
+    {
+      "date": "2026-12-25",
+      "q10": 56.67,
+      "q50": 327.44,
+      "q90": 705.94
+    },
+    {
+      "date": "2026-12-26",
+      "q10": 0,
+      "q50": 269.29,
+      "q90": 658.09
+    },
+    {
+      "date": "2026-12-27",
+      "q10": 0,
+      "q50": 214.07,
+      "q90": 599.85
+    },
+    {
+      "date": "2026-12-28",
+      "q10": 0,
+      "q50": 169.8,
+      "q90": 565.35
+    },
+    {
+      "date": "2026-12-29",
+      "q10": 424.37,
+      "q50": 699.75,
+      "q90": 1133.83
+    },
+    {
+      "date": "2026-12-30",
+      "q10": 376.24,
+      "q50": 659.06,
+      "q90": 1096.9
+    },
+    {
+      "date": "2026-12-31",
+      "q10": 328.52,
+      "q50": 620.33,
+      "q90": 1061.76
+    },
+    {
+      "date": "2027-01-01",
+      "q10": -686.48,
+      "q50": -394.67,
+      "q90": 45.92
+    },
+    {
+      "date": "2027-01-02",
+      "q10": -686.48,
+      "q50": -394.67,
+      "q90": 0
+    },
+    {
+      "date": "2027-01-03",
+      "q10": -686.48,
+      "q50": -394.67,
+      "q90": 0
+    },
+    {
+      "date": "2027-01-04",
+      "q10": -686.48,
+      "q50": -394.67,
+      "q90": 0
+    },
+    {
+      "date": "2027-01-05",
+      "q10": -275.91,
+      "q50": 69.02,
+      "q90": 514.58
+    },
+    {
+      "date": "2027-01-06",
+      "q10": -275.91,
+      "q50": 28.27,
+      "q90": 483.12
+    },
+    {
+      "date": "2027-01-07",
+      "q10": -275.91,
+      "q50": 0,
+      "q90": 446.12
+    },
+    {
+      "date": "2027-01-08",
+      "q10": -275.91,
+      "q50": 0,
+      "q90": 412.49
+    },
+    {
+      "date": "2027-01-09",
+      "q10": -495.91,
+      "q50": -220,
+      "q90": 184.7
+    },
+    {
+      "date": "2027-01-10",
+      "q10": -495.91,
+      "q50": -220,
+      "q90": 146.36
+    },
+    {
+      "date": "2027-01-11",
+      "q10": -495.91,
+      "q50": -220,
+      "q90": 101.63
+    },
+    {
+      "date": "2027-01-12",
+      "q10": 0,
+      "q50": 306.92,
+      "q90": 709.49
+    },
+    {
+      "date": "2027-01-13",
+      "q10": 0,
+      "q50": 265.62,
+      "q90": 663.24
+    },
+    {
+      "date": "2027-01-14",
+      "q10": 0,
+      "q50": 221.47,
+      "q90": 622.39
+    },
+    {
+      "date": "2027-01-15",
+      "q10": 0,
+      "q50": 179.14,
+      "q90": 581.59
+    },
+    {
+      "date": "2027-01-16",
+      "q10": 0,
+      "q50": 120.91,
+      "q90": 528.64
+    },
+    {
+      "date": "2027-01-17",
+      "q10": 0,
+      "q50": 66.53,
+      "q90": 478.52
+    },
+    {
+      "date": "2027-01-18",
+      "q10": -203,
+      "q50": -136.47,
+      "q90": 274.81
+    },
+    {
+      "date": "2027-01-19",
+      "q10": 165.6,
+      "q50": 420.05,
+      "q90": 877.71
+    },
+    {
+      "date": "2027-01-20",
+      "q10": 114.64,
+      "q50": 374.89,
+      "q90": 838.54
+    },
+    {
+      "date": "2027-01-21",
+      "q10": 57.47,
+      "q50": 332.32,
+      "q90": 804.56
+    },
+    {
+      "date": "2027-01-22",
+      "q10": -68.29,
+      "q50": 199.32,
+      "q90": 679.74
+    },
+    {
+      "date": "2027-01-23",
+      "q10": -68.29,
+      "q50": 142.88,
+      "q90": 636.06
+    },
+    {
+      "date": "2027-01-24",
+      "q10": -68.29,
+      "q50": 86.78,
+      "q90": 593.11
+    },
+    {
+      "date": "2027-01-25",
+      "q10": -68.29,
+      "q50": 44.16,
+      "q90": 563.1
+    }
+  ],
+  "metrics": {
+    "headline_slack": {
+      "30d": 5.4,
+      "60d": 3.45,
+      "90d": 0.57
+    },
+    "true_slack": {
+      "30d": 5.4,
+      "60d": 3.45,
+      "90d": 0.57
+    },
+    "lowest_true_slack_median_path": -8.97,
+    "lowest_true_slack_p10": -10.8,
+    "lowest_q50_date": "2026-11-01",
+    "risk_days": 52,
+    "p_overdraft": 1,
+    "expected_courtesy_fees": 8.51,
+    "expected_fee_dollars": 297.83
+  },
+  "explanation": "Your balance is likely lowest on Nov 01 (about $-690, -8.8 days of spending). What pulls it down: rent $980 on Nov 01. Payday on Nov 03 brings it back."
+}

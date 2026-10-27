@@ -1,0 +1,815 @@
+{
+  "member_id": "D",
+  "member_name": "Dee",
+  "forecaster": "LightGBM",
+  "model_version": "lightgbm-4.5.0-quantile-cqr-copula-1.0",
+  "feature_hash": "adbd38fdc756",
+  "feature_schema": [
+    "horizon_days",
+    "spend7_over_spend90",
+    "spend30_over_spend90",
+    "spend_cv30",
+    "weekend_share",
+    "holiday_share",
+    "cushion_days",
+    "overdraft_fees_90d",
+    "days_to_payday",
+    "known_net_flow_ratio",
+    "tight_windows",
+    "tenure_days",
+    "courtesy_pay",
+    "direct_deposit",
+    "alerts_on",
+    "origin_day_of_month",
+    "origin_day_of_week",
+    "income_cv",
+    "log_spend_scale"
+  ],
+  "ledger_hash": "9ead72e1f8ba4052",
+  "frozen_inputs_hash": "9ffb6d022da40865",
+  "origin": "2026-10-27",
+  "seed": 7,
+  "paths": 2000,
+  "horizon_days": 90,
+  "start_available_balance": 1258.7,
+  "start_savings_balance": 0,
+  "average_daily_spend": 61.27,
+  "product_rules": {
+    "CourtesyPay": true,
+    "OdFee": 35,
+    "MaxFeesPerDay": 3,
+    "MinItemForFee": 15,
+    "CardOverdraftOptIn": false,
+    "NsfFee": 0,
+    "SavingsFirst": false
+  },
+  "recurring": [
+    {
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "kind": "Income",
+      "cadence": "Monthly",
+      "DayOfMonth": 15,
+      "PeriodDays": 30,
+      "Amount": 1080,
+      "amount_cv": 0,
+      "Occurrences": 8
+    },
+    {
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "kind": "Income",
+      "cadence": "Monthly",
+      "DayOfMonth": 31,
+      "PeriodDays": 30,
+      "Amount": 1080,
+      "amount_cv": 0,
+      "Occurrences": 8
+    },
+    {
+      "Description": "SUNSET APARTMENTS",
+      "Category": "Rent",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 3,
+      "PeriodDays": 30,
+      "Amount": -925,
+      "amount_cv": 0,
+      "Occurrences": 4
+    },
+    {
+      "Description": "ALLSTATE",
+      "Category": "Insurance",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 12,
+      "PeriodDays": 30,
+      "Amount": -95,
+      "amount_cv": 0,
+      "Occurrences": 4
+    },
+    {
+      "Description": "CRICKET WIRELESS",
+      "Category": "Phone",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 13,
+      "PeriodDays": 30,
+      "Amount": -55,
+      "amount_cv": 0,
+      "Occurrences": 4
+    },
+    {
+      "Description": "CITY WATER \u0026 POWER",
+      "Category": "Utilities",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 20,
+      "PeriodDays": 30,
+      "Amount": -84.77000000000001,
+      "amount_cv": 0.059,
+      "Occurrences": 5
+    },
+    {
+      "Description": "DISNEY PLUS",
+      "Category": "Subscription",
+      "kind": "Bill",
+      "cadence": "Monthly",
+      "DayOfMonth": 25,
+      "PeriodDays": 30,
+      "Amount": -13.99,
+      "amount_cv": 0,
+      "Occurrences": 5
+    }
+  ],
+  "known_future_events": [
+    {
+      "date": "2026-10-30",
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "Amount": 1080
+    },
+    {
+      "date": "2026-11-03",
+      "Description": "SUNSET APARTMENTS",
+      "Category": "Rent",
+      "Amount": -925
+    },
+    {
+      "date": "2026-11-12",
+      "Description": "ALLSTATE",
+      "Category": "Insurance",
+      "Amount": -95
+    },
+    {
+      "date": "2026-11-13",
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "Amount": 1080
+    },
+    {
+      "date": "2026-11-13",
+      "Description": "CRICKET WIRELESS",
+      "Category": "Phone",
+      "Amount": -55
+    },
+    {
+      "date": "2026-11-20",
+      "Description": "CITY WATER \u0026 POWER",
+      "Category": "Utilities",
+      "Amount": -84.77000000000001
+    },
+    {
+      "date": "2026-11-25",
+      "Description": "DISNEY PLUS",
+      "Category": "Subscription",
+      "Amount": -13.99
+    },
+    {
+      "date": "2026-11-30",
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "Amount": 1080
+    },
+    {
+      "date": "2026-12-03",
+      "Description": "SUNSET APARTMENTS",
+      "Category": "Rent",
+      "Amount": -925
+    },
+    {
+      "date": "2026-12-12",
+      "Description": "ALLSTATE",
+      "Category": "Insurance",
+      "Amount": -95
+    },
+    {
+      "date": "2026-12-13",
+      "Description": "CRICKET WIRELESS",
+      "Category": "Phone",
+      "Amount": -55
+    },
+    {
+      "date": "2026-12-15",
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "Amount": 1080
+    },
+    {
+      "date": "2026-12-20",
+      "Description": "CITY WATER \u0026 POWER",
+      "Category": "Utilities",
+      "Amount": -84.77000000000001
+    },
+    {
+      "date": "2026-12-25",
+      "Description": "DISNEY PLUS",
+      "Category": "Subscription",
+      "Amount": -13.99
+    },
+    {
+      "date": "2026-12-31",
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "Amount": 1080
+    },
+    {
+      "date": "2027-01-03",
+      "Description": "SUNSET APARTMENTS",
+      "Category": "Rent",
+      "Amount": -925
+    },
+    {
+      "date": "2027-01-12",
+      "Description": "ALLSTATE",
+      "Category": "Insurance",
+      "Amount": -95
+    },
+    {
+      "date": "2027-01-13",
+      "Description": "CRICKET WIRELESS",
+      "Category": "Phone",
+      "Amount": -55
+    },
+    {
+      "date": "2027-01-15",
+      "Description": "BRIGHT DENTAL PAYROLL",
+      "Category": "Income",
+      "Amount": 1080
+    },
+    {
+      "date": "2027-01-20",
+      "Description": "CITY WATER \u0026 POWER",
+      "Category": "Utilities",
+      "Amount": -84.77000000000001
+    },
+    {
+      "date": "2027-01-25",
+      "Description": "DISNEY PLUS",
+      "Category": "Subscription",
+      "Amount": -13.99
+    }
+  ],
+  "path": [
+    {
+      "date": "2026-10-28",
+      "q10": 1214.4,
+      "q50": 1244.59,
+      "q90": 1258.7
+    },
+    {
+      "date": "2026-10-29",
+      "q10": 1171.12,
+      "q50": 1227.25,
+      "q90": 1257.67
+    },
+    {
+      "date": "2026-10-30",
+      "q10": 2210.8,
+      "q50": 2287.59,
+      "q90": 2333.17
+    },
+    {
+      "date": "2026-10-31",
+      "q10": 2180.34,
+      "q50": 2264.45,
+      "q90": 2310.66
+    },
+    {
+      "date": "2026-11-01",
+      "q10": 2130.64,
+      "q50": 2245.98,
+      "q90": 2297.01
+    },
+    {
+      "date": "2026-11-02",
+      "q10": 2101.05,
+      "q50": 2222.19,
+      "q90": 2282.3
+    },
+    {
+      "date": "2026-11-03",
+      "q10": 1131.13,
+      "q50": 1280.19,
+      "q90": 1346.89
+    },
+    {
+      "date": "2026-11-04",
+      "q10": 1105.79,
+      "q50": 1258.63,
+      "q90": 1335.67
+    },
+    {
+      "date": "2026-11-05",
+      "q10": 1066.53,
+      "q50": 1243.97,
+      "q90": 1326.12
+    },
+    {
+      "date": "2026-11-06",
+      "q10": 1023.73,
+      "q50": 1230.92,
+      "q90": 1318.25
+    },
+    {
+      "date": "2026-11-07",
+      "q10": 991.35,
+      "q50": 1202.68,
+      "q90": 1293.56
+    },
+    {
+      "date": "2026-11-08",
+      "q10": 954.57,
+      "q50": 1181.74,
+      "q90": 1272.42
+    },
+    {
+      "date": "2026-11-09",
+      "q10": 920.78,
+      "q50": 1170.92,
+      "q90": 1262.97
+    },
+    {
+      "date": "2026-11-10",
+      "q10": 886.44,
+      "q50": 1160.5,
+      "q90": 1253.81
+    },
+    {
+      "date": "2026-11-11",
+      "q10": 864.95,
+      "q50": 1129.9,
+      "q90": 1234.66
+    },
+    {
+      "date": "2026-11-12",
+      "q10": 741.73,
+      "q50": 1011.49,
+      "q90": 1120.14
+    },
+    {
+      "date": "2026-11-13",
+      "q10": 1737.27,
+      "q50": 2018.66,
+      "q90": 2125.12
+    },
+    {
+      "date": "2026-11-14",
+      "q10": 1688.73,
+      "q50": 1999.21,
+      "q90": 2101.69
+    },
+    {
+      "date": "2026-11-15",
+      "q10": 1635.94,
+      "q50": 1984.1,
+      "q90": 2079.19
+    },
+    {
+      "date": "2026-11-16",
+      "q10": 1597.38,
+      "q50": 1971.78,
+      "q90": 2065.84
+    },
+    {
+      "date": "2026-11-17",
+      "q10": 1557.57,
+      "q50": 1959.56,
+      "q90": 2052.46
+    },
+    {
+      "date": "2026-11-18",
+      "q10": 1532.53,
+      "q50": 1935.44,
+      "q90": 2035.13
+    },
+    {
+      "date": "2026-11-19",
+      "q10": 1502.69,
+      "q50": 1906.88,
+      "q90": 2019.86
+    },
+    {
+      "date": "2026-11-20",
+      "q10": 1379.52,
+      "q50": 1799.6,
+      "q90": 1918.74
+    },
+    {
+      "date": "2026-11-21",
+      "q10": 1330.1,
+      "q50": 1773,
+      "q90": 1898.02
+    },
+    {
+      "date": "2026-11-22",
+      "q10": 1270.36,
+      "q50": 1750.49,
+      "q90": 1880.58
+    },
+    {
+      "date": "2026-11-23",
+      "q10": 1232.32,
+      "q50": 1738.7,
+      "q90": 1867.66
+    },
+    {
+      "date": "2026-11-24",
+      "q10": 1188.6,
+      "q50": 1726.6,
+      "q90": 1856.07
+    },
+    {
+      "date": "2026-11-25",
+      "q10": 1161.54,
+      "q50": 1688.15,
+      "q90": 1820.57
+    },
+    {
+      "date": "2026-11-26",
+      "q10": 1143.07,
+      "q50": 1661.35,
+      "q90": 1798.54
+    },
+    {
+      "date": "2026-11-27",
+      "q10": 1126.57,
+      "q50": 1639.65,
+      "q90": 1776.91
+    },
+    {
+      "date": "2026-11-28",
+      "q10": 1097.77,
+      "q50": 1612,
+      "q90": 1744.78
+    },
+    {
+      "date": "2026-11-29",
+      "q10": 1066.78,
+      "q50": 1582.52,
+      "q90": 1713.71
+    },
+    {
+      "date": "2026-11-30",
+      "q10": 2116.09,
+      "q50": 2650.76,
+      "q90": 2774.29
+    },
+    {
+      "date": "2026-12-01",
+      "q10": 2087.55,
+      "q50": 2640.32,
+      "q90": 2755.67
+    },
+    {
+      "date": "2026-12-02",
+      "q10": 2069.55,
+      "q50": 2613.24,
+      "q90": 2738.87
+    },
+    {
+      "date": "2026-12-03",
+      "q10": 1118.57,
+      "q50": 1662.26,
+      "q90": 1797.08
+    },
+    {
+      "date": "2026-12-04",
+      "q10": 1090.96,
+      "q50": 1638.85,
+      "q90": 1780.44
+    },
+    {
+      "date": "2026-12-05",
+      "q10": 1046.78,
+      "q50": 1614.75,
+      "q90": 1756.67
+    },
+    {
+      "date": "2026-12-06",
+      "q10": 1000.02,
+      "q50": 1586.8,
+      "q90": 1732.83
+    },
+    {
+      "date": "2026-12-07",
+      "q10": 970.01,
+      "q50": 1569.65,
+      "q90": 1717.11
+    },
+    {
+      "date": "2026-12-08",
+      "q10": 942.48,
+      "q50": 1553.76,
+      "q90": 1700.88
+    },
+    {
+      "date": "2026-12-09",
+      "q10": 901.91,
+      "q50": 1535.6,
+      "q90": 1684.82
+    },
+    {
+      "date": "2026-12-10",
+      "q10": 864.73,
+      "q50": 1519.86,
+      "q90": 1668.63
+    },
+    {
+      "date": "2026-12-11",
+      "q10": 832.29,
+      "q50": 1505.2,
+      "q90": 1653.21
+    },
+    {
+      "date": "2026-12-12",
+      "q10": 696.92,
+      "q50": 1384.8,
+      "q90": 1533.14
+    },
+    {
+      "date": "2026-12-13",
+      "q10": 601.77,
+      "q50": 1294.42,
+      "q90": 1453.22
+    },
+    {
+      "date": "2026-12-14",
+      "q10": 571.4,
+      "q50": 1270.25,
+      "q90": 1436.04
+    },
+    {
+      "date": "2026-12-15",
+      "q10": 1629.09,
+      "q50": 2330.77,
+      "q90": 2499
+    },
+    {
+      "date": "2026-12-16",
+      "q10": 1605.01,
+      "q50": 2309.78,
+      "q90": 2482.45
+    },
+    {
+      "date": "2026-12-17",
+      "q10": 1577.49,
+      "q50": 2292.31,
+      "q90": 2466
+    },
+    {
+      "date": "2026-12-18",
+      "q10": 1547.79,
+      "q50": 2277.53,
+      "q90": 2449.7
+    },
+    {
+      "date": "2026-12-19",
+      "q10": 1508.91,
+      "q50": 2257.46,
+      "q90": 2425.46
+    },
+    {
+      "date": "2026-12-20",
+      "q10": 1370.05,
+      "q50": 2153.42,
+      "q90": 2316.18
+    },
+    {
+      "date": "2026-12-21",
+      "q10": 1333.78,
+      "q50": 2143.63,
+      "q90": 2299.83
+    },
+    {
+      "date": "2026-12-22",
+      "q10": 1302.99,
+      "q50": 2127.3,
+      "q90": 2283.55
+    },
+    {
+      "date": "2026-12-23",
+      "q10": 1265.35,
+      "q50": 2112.97,
+      "q90": 2267.2
+    },
+    {
+      "date": "2026-12-24",
+      "q10": 1227.84,
+      "q50": 2091.77,
+      "q90": 2250.8
+    },
+    {
+      "date": "2026-12-25",
+      "q10": 1167.87,
+      "q50": 2067.16,
+      "q90": 2220.47
+    },
+    {
+      "date": "2026-12-26",
+      "q10": 1119.14,
+      "q50": 2044.37,
+      "q90": 2196.99
+    },
+    {
+      "date": "2026-12-27",
+      "q10": 1083.86,
+      "q50": 2010.85,
+      "q90": 2173.2
+    },
+    {
+      "date": "2026-12-28",
+      "q10": 1060.05,
+      "q50": 1983.23,
+      "q90": 2156.32
+    },
+    {
+      "date": "2026-12-29",
+      "q10": 1042.04,
+      "q50": 1962.99,
+      "q90": 2140.24
+    },
+    {
+      "date": "2026-12-30",
+      "q10": 1019.6,
+      "q50": 1938.85,
+      "q90": 2124.36
+    },
+    {
+      "date": "2026-12-31",
+      "q10": 2069.75,
+      "q50": 2998.94,
+      "q90": 3188.58
+    },
+    {
+      "date": "2027-01-01",
+      "q10": 2043.42,
+      "q50": 2976.28,
+      "q90": 3173.05
+    },
+    {
+      "date": "2027-01-02",
+      "q10": 1999.62,
+      "q50": 2949.84,
+      "q90": 3149.81
+    },
+    {
+      "date": "2027-01-03",
+      "q10": 1031.52,
+      "q50": 1995.3,
+      "q90": 2201.56
+    },
+    {
+      "date": "2027-01-04",
+      "q10": 1011.22,
+      "q50": 1977.33,
+      "q90": 2185.96
+    },
+    {
+      "date": "2027-01-05",
+      "q10": 977.42,
+      "q50": 1968.38,
+      "q90": 2170.43
+    },
+    {
+      "date": "2027-01-06",
+      "q10": 944.78,
+      "q50": 1951.78,
+      "q90": 2155.04
+    },
+    {
+      "date": "2027-01-07",
+      "q10": 907.7,
+      "q50": 1933.61,
+      "q90": 2139.39
+    },
+    {
+      "date": "2027-01-08",
+      "q10": 871.01,
+      "q50": 1918.23,
+      "q90": 2123.74
+    },
+    {
+      "date": "2027-01-09",
+      "q10": 809.95,
+      "q50": 1889.49,
+      "q90": 2100.91
+    },
+    {
+      "date": "2027-01-10",
+      "q10": 750.5,
+      "q50": 1872.94,
+      "q90": 2078.43
+    },
+    {
+      "date": "2027-01-11",
+      "q10": 711.04,
+      "q50": 1857.77,
+      "q90": 2062.38
+    },
+    {
+      "date": "2027-01-12",
+      "q10": 586.18,
+      "q50": 1742.14,
+      "q90": 1951.52
+    },
+    {
+      "date": "2027-01-13",
+      "q10": 504.28,
+      "q50": 1664.58,
+      "q90": 1881.04
+    },
+    {
+      "date": "2027-01-14",
+      "q10": 478.45,
+      "q50": 1631.95,
+      "q90": 1865.3
+    },
+    {
+      "date": "2027-01-15",
+      "q10": 1537.82,
+      "q50": 2688.11,
+      "q90": 2929.83
+    },
+    {
+      "date": "2027-01-16",
+      "q10": 1493.8,
+      "q50": 2664.94,
+      "q90": 2907.08
+    },
+    {
+      "date": "2027-01-17",
+      "q10": 1447.44,
+      "q50": 2640,
+      "q90": 2884.08
+    },
+    {
+      "date": "2027-01-18",
+      "q10": 1407.41,
+      "q50": 2626.18,
+      "q90": 2868.68
+    },
+    {
+      "date": "2027-01-19",
+      "q10": 1385.14,
+      "q50": 2607.9,
+      "q90": 2853.36
+    },
+    {
+      "date": "2027-01-20",
+      "q10": 1267.64,
+      "q50": 2504.94,
+      "q90": 2753.27
+    },
+    {
+      "date": "2027-01-21",
+      "q10": 1236.59,
+      "q50": 2488.66,
+      "q90": 2737.94
+    },
+    {
+      "date": "2027-01-22",
+      "q10": 1207.31,
+      "q50": 2476.05,
+      "q90": 2722.43
+    },
+    {
+      "date": "2027-01-23",
+      "q10": 1147.6,
+      "q50": 2456.68,
+      "q90": 2699.59
+    },
+    {
+      "date": "2027-01-24",
+      "q10": 1094.29,
+      "q50": 2436.3,
+      "q90": 2677.38
+    },
+    {
+      "date": "2027-01-25",
+      "q10": 1043.76,
+      "q50": 2412.35,
+      "q90": 2648.53
+    }
+  ],
+  "metrics": {
+    "headline_slack": {
+      "30d": 27.11,
+      "60d": 33.37,
+      "90d": 39.37
+    },
+    "true_slack": {
+      "30d": 27.11,
+      "60d": 33.37,
+      "90d": 39.37
+    },
+    "lowest_true_slack_median_path": 15.48,
+    "lowest_true_slack_p10": 7.15,
+    "lowest_q50_date": "2026-11-12",
+    "risk_days": 0,
+    "p_overdraft": 0,
+    "expected_courtesy_fees": 0,
+    "expected_fee_dollars": 0
+  },
+  "explanation": "Your balance is likely lowest on Nov 12 (about $1,011, 16.5 days of spending). What pulls it down: insurance $95 on Nov 12. Payday on Nov 13 brings it back."
+}

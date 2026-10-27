@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Occlet.Approach2</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Occlet.Core\Occlet.Core.csproj" />
+  </ItemGroup>
+  <!-- LightGBM's native library (fetched by tools/get-lightgbm.ps1 or .sh) is copied next to the exe when present. -->
+  <ItemGroup>
+    <None Include="..\..\native\win-x64\lib_lightgbm.dll" Condition="Exists('..\..\native\win-x64\lib_lightgbm.dll')" Link="lib_lightgbm.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\native\linux-x64\lib_lightgbm.so" Condition="Exists('..\..\native\linux-x64\lib_lightgbm.so')" Link="lib_lightgbm.so" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\native\osx\lib_lightgbm.dylib" Condition="Exists('..\..\native\osx\lib_lightgbm.dylib')" Link="lib_lightgbm.dylib" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
