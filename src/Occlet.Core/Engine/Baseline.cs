@@ -29,6 +29,7 @@ public sealed class Baseline
     public required IReadOnlyList<FutureEvent> Events { get; init; }
     public required EverydaySeries Series { get; init; }
     public required double[][] Everyday { get; init; }
+    public required double[][][] CardFractions { get; init; }
     public required double[][] AlertU { get; init; }
     public required double[] LeverU { get; init; }
     public required double[][] EventZ { get; init; }
@@ -50,12 +51,17 @@ public sealed class Baseline
         using var ms = new MemoryStream();
         void Add(double[] a) { var b = new byte[a.Length * 8]; Buffer.BlockCopy(a, 0, b, 0, b.Length); ms.Write(b); }
         foreach (var row in Everyday) Add(row);
+        foreach (var path in CardFractions) foreach (var day in path) { Add(new[] { (double)day.Length }); Add(day); }
         foreach (var row in AlertU) Add(row);
         Add(LeverU);
         foreach (var row in EventZ) Add(row);
         foreach (var row in ItemLevel) Add(row);
-        ms.Write(Encoding.UTF8.GetBytes(string.Join(";", Events.Select(e => $"{e.Key}:{e.Day}:{e.Amount.ToString("R", CultureInfo.InvariantCulture)}"))));
-        ms.Write(Encoding.UTF8.GetBytes(Rules.ToString() + Behaviour));
+        ms.Write(JsonSerializer.SerializeToUtf8Bytes(new {
+            Origin, Horizon, Forecaster, ForecasterVersion, Seed, StartBalance, StartSavings, Ads,
+            Events, Rules, Behaviour, Profile, Recurring, Series.CategoryShare,
+            EventKeyIndex = EventKeyIndex.OrderBy(x => x.Key).ToArray(),
+            ItemIndex = ItemIndex.OrderBy(x => x.Key).ToArray()
+        }));
         return Stats.Sha256Hex(ms.ToArray());
     }
 }
@@ -92,18 +98,29 @@ public static class BaselineBuilder
         var itemLevel = Enumerable.Range(0, P).Select(_ => recurring.Select(r => Math.Exp(r.LevelCv * Stats.Gaussian(rng) - r.LevelCv * r.LevelCv / 2)).ToArray()).ToArray();
         var itemIndex = recurring.Select((r, i) => (r.Key, i)).ToDictionary(x => x.Key, x => x.i);
 
+        var recurringNames = recurring.Select(r => r.Description).ToHashSet();
+        var ticketDays = h.Checking.Where(t => t.Amount < 0 && t.Channel == "Card" &&
+            !recurringNames.Contains(t.Description) && t.Date >= origin.AddDays(-Settings.ResidualLookbackDays + 1))
+            .GroupBy(t => t.Date).Where(g => h.CheckingEod(g.Key.AddDays(-1)) >= Settings.HealthyBalance)
+            .Select(g => { double total = -g.Sum(t => t.Amount); return g.Select(t => -t.Amount / total).ToArray(); }).ToList();
+        if (ticketDays.Count == 0) ticketDays.Add(new[] { 1.0 });
+        // Same ticket stream across forecasters as well as scenarios; no future data is used.
+        var ticketRng = new Random(Stats.StableSeed(baseSeed, member.Id, origin.DayNumber, "tickets-v1"));
+        var cardFractions = Enumerable.Range(0, P).Select(_ => Enumerable.Range(0, horizon)
+            .Select(_ => ticketDays[ticketRng.Next(ticketDays.Count)].ToArray()).ToArray()).ToArray();
+
         var b = new Baseline
         {
             History = h, Origin = origin, Horizon = horizon, Forecaster = forecaster.Name, ForecasterVersion = forecaster.Version,
             Seed = baseSeed, StartBalance = ctx.StartBalance, StartSavings = h.SavingsEod(origin), Ads = ads,
-            Recurring = recurring, Events = events, Series = series, Everyday = everyday,
+            Recurring = recurring, Events = events, Series = series, Everyday = everyday, CardFractions = cardFractions,
             AlertU = alertU, LeverU = leverU, EventZ = eventZ, EventKeyIndex = keyIndex, ItemLevel = itemLevel, ItemIndex = itemIndex,
             Rules = ProductRules.From(h.Profile),
             // an alert the member ALREADY has is part of their history — not simulated again (no double counting)
             Behaviour = Behaviour.None,
         };
         var result = Replay.Run(new Replay.Input(b.StartBalance, b.StartSavings, events, horizon, everyday, alertU, leverU,
-                                                 eventZ, keyIndex, b.Rules, b.Behaviour, itemLevel, itemIndex));
+                                                 eventZ, keyIndex, b.Rules, b.Behaviour, itemLevel, itemIndex, cardFractions));
         b.Freeze(result, SlackSummary.From(result, ads));
         return b;
     }
@@ -139,6 +156,8 @@ public static class ArtifactWriter
             member_name = b.Profile.Name,
             forecaster = b.Forecaster,
             model_version = b.ForecasterVersion,
+            replay_version = "accounting-v2-ticket-replay",
+            balance_semantics = "posted-balance proxy; holds and pending authorizations not supplied",
             feature_hash = Stats.Sha256Hex(string.Join(",", featureSchema), 12),
             feature_schema = featureSchema,
             ledger_hash = ledgerHash,

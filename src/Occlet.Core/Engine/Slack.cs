@@ -30,8 +30,9 @@ public sealed class SlackSummary
     public double ExpBillDeclines { get; init; }
     public double ExpCardDeclined { get; init; }
     public double ExpSavingsPulled { get; init; }
+    public double ExpUnpaidBills { get; init; }
 
-    public static SlackSummary From(ReplayResult r, double ads, double extraDailySpend = 0, double[]? owed = null)
+    public static SlackSummary From(ReplayResult r, double ads, double extraDailySpend = 0)
     {
         int P = r.Paths.Length, H = r.Paths[0].Length;
         double denom = Math.Max(ads + extraDailySpend, 1.0);
@@ -54,7 +55,7 @@ public sealed class SlackSummary
             {
                 double b = r.Paths[p][d];
                 minBal = Math.Min(minBal, b);
-                lo = Math.Min(lo, b - (owed?[d] ?? 0));
+                lo = Math.Min(lo, b - r.OutstandingPrincipal[p][d]);
             }
             pathLowest[p] = lo / denom;
             if (minBal < 0) overdrawn++;
@@ -64,7 +65,7 @@ public sealed class SlackSummary
         foreach (int h in Settings.ReportHorizons.Where(h => h <= H))
         {
             headline[h] = q50[h - 1] / ads;
-            trueSlack[h] = Stats.Median(r.Paths.Select(path => path[h - 1] - (owed?[h - 1] ?? 0))) / denom;
+            trueSlack[h] = Stats.Median(r.Paths.Select((path, p) => path[h - 1] - r.OutstandingPrincipal[p][h - 1])) / denom;
         }
         int lowDay = Array.IndexOf(q50, q50.Min());
         return new SlackSummary
@@ -80,6 +81,7 @@ public sealed class SlackSummary
             ExpFees = r.FeeCount.Average(), ExpFeeDollars = r.FeeDollars.Average(),
             ExpBillDeclines = r.BillDeclines.Average(), ExpCardDeclined = r.CardDeclined.Average(),
             ExpSavingsPulled = r.SavingsPulled.Average(),
+            ExpUnpaidBills = r.UnpaidBills.Average(path => path[^1]),
         };
     }
 }

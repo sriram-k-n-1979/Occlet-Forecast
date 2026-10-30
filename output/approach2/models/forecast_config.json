@@ -1,0 +1,83 @@
+{
+  "Version": "lightgbm-4.5.0-quantile-cqr-copula-origin-safe-2.0",
+  "Names": [
+    "horizon_days",
+    "spend7_over_spend90",
+    "spend30_over_spend90",
+    "spend_cv30",
+    "weekend_share",
+    "holiday_share",
+    "cushion_days",
+    "overdraft_fees_90d",
+    "days_to_payday",
+    "known_net_flow_ratio",
+    "tight_windows",
+    "tenure_days",
+    "courtesy_pay",
+    "direct_deposit",
+    "alerts_on",
+    "origin_day_of_month",
+    "origin_day_of_week",
+    "income_cv",
+    "log_spend_scale"
+  ],
+  "HorizonGrid": [
+    1,
+    2,
+    3,
+    5,
+    7,
+    10,
+    14,
+    21,
+    28,
+    30,
+    35,
+    45,
+    60,
+    75,
+    90
+  ],
+  "Alphas": [
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9
+  ],
+  "conformal": true,
+  "lowOffsets": [
+    0.15111841817323257,
+    0.19541581463746027,
+    0.1371350322952949
+  ],
+  "highOffsets": [
+    0.16516124069890092,
+    0.31447121973771663,
+    0.3520686745661543
+  ],
+  "copulaLambda": 0.17477340474593167,
+  "fit": {
+    "Cutoff": "2026-10-27",
+    "TrainRows": 8670,
+    "CalibrationRows": 6390,
+    "Members": 5,
+    "ConformalLow": [
+      0.15111841817323257,
+      0.19541581463746027,
+      0.1371350322952949
+    ],
+    "ConformalHigh": [
+      0.16516124069890092,
+      0.31447121973771663,
+      0.3520686745661543
+    ],
+    "CopulaLambda": 0.17477340474593167,
+    "CopulaCorrObserved": 0.40491810643989623,
+    "RawCoverageCal": 0.4777777777777778,
+    "CalibratedCoverageCal": 0.8012519561815337,
+    "RawBelowQ10Cal": 0.29593114241001567,
+    "CalibratedBelowQ10Cal": 0.09937402190923318
+  },
+  "calibration": "forward-only empirical offsets; no exchangeability guarantee"
+}

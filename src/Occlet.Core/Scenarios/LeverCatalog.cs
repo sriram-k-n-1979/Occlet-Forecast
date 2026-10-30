@@ -178,7 +178,7 @@ public static class LeverCatalog
             Caveat = "Borrowed principal is excluded from TRUE slack; repayments count as spending.",
             Apply = st =>
             {
-                st.Events.Add(new FutureEvent(0, b.DateAt(0), "loan_proceeds", "CU PERSONAL LOAN PROCEEDS", "Loan proceeds", "Internal", principal, 0, ItemKind.Income, "scenario"));
+                st.Events.Add(new FutureEvent(0, b.DateAt(0), "loan_proceeds", "CU PERSONAL LOAN PROCEEDS", "Loan proceeds", "Internal", principal, 0, ItemKind.Income, "scenario", PrincipalChange: principal));
                 double owed = principal, r = Settings.CashLoanApr / 12;
                 int paid = 0;
                 for (int d = 0; d < b.Horizon; d++)
@@ -186,20 +186,28 @@ public static class LeverCatalog
                     var date = b.DateAt(d);
                     if (date.Day == 10 && d >= 14 && paid < Settings.CashLoanMonths)
                     {
-                        owed -= pay - owed * r; paid++;
-                        st.Events.Add(new FutureEvent(d, date, $"loan_pmt@{date:yyyy-MM-dd}", "CU PERSONAL LOAN PMT", "Loan payment", "Internal", -pay, 0, ItemKind.Bill, "scenario"));
+                        double principalPaid = Math.Min(owed, pay - owed * r);
+                        owed -= principalPaid; paid++;
+                        st.Events.Add(new FutureEvent(d, date, $"loan_pmt@{date:yyyy-MM-dd}", "CU PERSONAL LOAN PMT", "Loan payment", "Internal", -pay, 0, ItemKind.Bill, "scenario", PrincipalChange: -principalPaid));
                     }
-                    st.Owed[d] += Math.Max(owed, 0);
                 }
                 st.ExtraDailySpend += pay / 30.4;
             },
-            Gate = st =>
-            {
-                double surplus = MonthlySurplus(st.Baseline);
-                bool ok = surplus > 0 && pay <= Settings.AtrShareOfSurplus * surplus;
-                return (ok, $"payment ${pay:N0}/mo vs half of monthly surplus ${Math.Max(surplus, 0) * Settings.AtrShareOfSurplus:N0} (surplus ${surplus:N0})");
-            },
+            Gate = st => Affordability(st, pay),
         };
+    }
+
+    /// <summary>Prototype affordability policy on the complete candidate, not just payment reduction.</summary>
+    private static (bool pass, string why) Affordability(ScenarioState st, double payment)
+    {
+        double months = st.Baseline.Horizon / 30.4;
+        double net = st.Events.Where(e => e.Category is not "Loan proceeds" and not "Transfer").Sum(e => e.Amount) / months;
+        // Do not assume unmeasured alert/trim responses will make a loan affordable.
+        double spending = st.Baseline.Everyday.Average(path => path.Average()) * 30.4;
+        double afterPayment = net - spending;
+        double beforePayment = afterPayment + payment;
+        bool pass = afterPayment > 0 && payment <= Settings.AtrShareOfSurplus * beforePayment;
+        return (pass, $"candidate monthly surplus after payments ${afterPayment:N0}; payment ${payment:N0} must fit {Settings.AtrShareOfSurplus:P0} of pre-payment surplus ${beforePayment:N0}");
     }
 
     private static Lever Refinance(Baseline b, RecurringItem card)
@@ -219,7 +227,8 @@ public static class LeverCatalog
                         st.Events[i] = st.Events[i] with { Description = "CU CONSOLIDATION LOAN PMT", Category = "Loan payment", Amount = -newPay, AmountCv = 0 };
                 st.ExtraDailySpend += (newPay - oldPay) / 30.4;   // negative: the payment falls
             },
-            Gate = _ => (newPay < oldPay, $"new payment ${newPay:N0}/mo vs current ${oldPay:N0}/mo"),
+            Gate = st => newPay >= oldPay
+                ? (false, "refinance does not lower the payment") : Affordability(st, newPay),
         };
     }
 }

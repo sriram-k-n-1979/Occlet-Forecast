@@ -9,9 +9,10 @@ public enum Cadence { Weekly, Biweekly, Monthly }
 /// <summary>A payday or bill that repeats on a schedule — the "known future" in Occlet's design.</summary>
 public sealed record RecurringItem(
     string Key, string Description, string Category, string Channel, ItemKind Kind, Cadence Cadence,
-    int PeriodDays, int DayOfMonth, DateOnly LastSeen, double Amount, double AmountCv, int Occurrences)
+    int PeriodDays, int DayOfMonth, DateOnly LastSeen, double Amount, double AmountCv, int Occurrences,
+    bool LastBusinessDay = false)
 {
-    public bool IsPayday => Kind == ItemKind.Income;
+    public bool IsPayday => Kind == ItemKind.Income && Category == "Income";
     /// <summary>Uncertainty of the estimated average amount itself (standard error ÷ mean), shared by all future occurrences.</summary>
     public double LevelCv => AmountCv < 0.03 ? 0 : AmountCv / Math.Sqrt(Math.Min(Occurrences, 26));
     public double MonthlyAmount => Cadence == Cadence.Monthly ? Amount : Amount * 30.4 / PeriodDays;
@@ -20,7 +21,7 @@ public sealed record RecurringItem(
 /// <summary>One projected cash event inside the forecast window. Day 0 = the day after the origin.</summary>
 public sealed record FutureEvent(
     int Day, DateOnly Date, string Key, string Description, string Category, string Channel,
-    double Amount, double AmountCv, ItemKind Kind, string Source)
+    double Amount, double AmountCv, ItemKind Kind, string Source, double PrincipalChange = 0)
 {
     public bool IsPayday => Kind == ItemKind.Income && Category == "Income";
 }
@@ -80,6 +81,15 @@ public static class RecurringDetector
             double share14 = gaps.Count(x => Math.Abs(x - 14) <= 1) / (double)gaps.Count;
             if (medGap is >= 6 and <= 8 && share7 >= 0.75) { Add(found, h, occ, g.Key, kind, Cadence.Weekly, 7, 0, amount, cv, needed: 6); continue; }
             if (medGap is >= 13 and <= 15 && share14 >= 0.75) { Add(found, h, occ, g.Key, kind, Cadence.Biweekly, 14, 0, amount, cv, needed: 4); continue; }
+            // Recognize month-end payroll before fitting an ordinary fixed day.
+            if (kind == ItemKind.Income && occ[0].Category == "Income" && medGap is >= 27 and <= 34 &&
+                occ.Count >= 3 && occ.All(t => t.Date == BusinessMonthEnd(t.Date.Year, t.Date.Month)))
+            {
+                int count = found.Count;
+                Add(found, h, occ, g.Key, kind, Cadence.Monthly, 30, 31, amount, cv, needed: 3);
+                if (found.Count > count) found[^1] = found[^1] with { LastBusinessDay = true };
+                continue;
+            }
             // 4) monthly on a fixed day of the month
             var doms = occ.Select(t => (double)t.Date.Day).ToList();
             if (medGap is >= 27 and <= 34 && Stats.StdPop(doms) <= 2.5)
@@ -108,9 +118,10 @@ public static class RecurringDetector
         {
             if (it.Cadence == Cadence.Monthly)
             {
-                for (var m = new DateOnly(first.Year, first.Month, 1); m <= last; m = m.AddMonths(1))
+                for (var m = new DateOnly(first.Year, first.Month, 1); m <= new DateOnly(last.Year, last.Month, 1).AddMonths(1); m = m.AddMonths(1))
                 {
-                    var d = new DateOnly(m.Year, m.Month, Math.Min(it.DayOfMonth, DateTime.DaysInMonth(m.Year, m.Month)));
+                    var d = it.LastBusinessDay ? BusinessMonthEnd(m.Year, m.Month)
+                        : new DateOnly(m.Year, m.Month, Math.Min(it.DayOfMonth, DateTime.DaysInMonth(m.Year, m.Month)));
                     if (it.IsPayday) while (d.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday) d = d.AddDays(-1); // payroll posts the Friday before
                     if (d >= first && d <= last) events.Add(Make(it, d, origin));
                 }
@@ -125,6 +136,13 @@ public static class RecurringDetector
         }
         // money in before money out on the same day; bigger bills first (a common core-banking posting order)
         return events.OrderBy(e => e.Day).ThenByDescending(e => e.Amount).ToList();
+    }
+
+    private static DateOnly BusinessMonthEnd(int year, int month)
+    {
+        var d = new DateOnly(year, month, DateTime.DaysInMonth(year, month));
+        while (d.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday) d = d.AddDays(-1);
+        return d;
     }
 
     private static FutureEvent Make(RecurringItem it, DateOnly d, DateOnly origin) =>

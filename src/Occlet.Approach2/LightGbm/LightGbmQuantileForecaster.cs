@@ -38,7 +38,7 @@ public sealed class LightGbmQuantileForecaster : ISpendForecaster, IDisposable
 
     public LightGbmQuantileForecaster(bool conformal = true) => _conformal = conformal;
     public string Name => _conformal ? "LightGBM" : "LightGBM-raw";
-    public string Version => $"lightgbm-4.5.0-quantile-{(_conformal ? "cqr-" : "")}copula-1.0";
+    public string Version => $"lightgbm-4.5.0-quantile-{(_conformal ? "cqr-" : "")}copula-origin-safe-2.0";
     public LgbmFitReport? LastFit { get; private set; }
     public static IReadOnlyList<string> FeatureSchema => FeatureBuilder.Names;
 
@@ -56,20 +56,22 @@ public sealed class LightGbmQuantileForecaster : ISpendForecaster, IDisposable
         var rows = new List<(double[] x, double y, DateOnly origin, int h, string key)>();
         foreach (var hist in universe)
         {
-            var fb = FeatureBuilder.FromHistory(hist.UpTo(cutoff));
-            for (var origin = fb.Series.Start.AddDays(Settings.MinHistoryDays - 1); origin < cutoff; origin = origin.AddDays(2))
+            var observed = hist.UpTo(cutoff);
+            for (var origin = observed.FirstDate.AddDays(Settings.MinHistoryDays - 1); origin < cutoff; origin = origin.AddDays(2))
             {
                 var hs = FeatureBuilder.HorizonGrid.Where(hh => origin.AddDays(hh) <= cutoff).ToList();
                 if (hs.Count == 0) continue;
+                var fb = FeatureBuilder.FromHistory(observed.UpTo(origin));
                 var x = fb.Rows(origin, hs);
+                var targets = fb.Targets(observed, hs);
                 for (int r = 0; r < hs.Count; r++)
-                    rows.Add((x.AsSpan(r * NF, NF).ToArray(), fb.Target(origin, hs[r]), origin, hs[r], $"{hist.Id}@{origin:yyyyMMdd}"));
+                    rows.Add((x.AsSpan(r * NF, NF).ToArray(), targets[r], origin, hs[r], $"{hist.Id}@{origin:yyyyMMdd}"));
             }
         }
 
         // 2) honest out-of-fold predictions for calibration: split origins into 4 time blocks; for each block,
-        //    train only on rows whose label window ENDS before the block starts or whose features START after
-        //    the block's label windows end ("purged" CV — overlapping 90-day windows would otherwise leak).
+        //    train only on labels observed BEFORE the validation block. No future-side training rows.
+        //    This is temporal empirical calibration; overlapping observations are not exchangeable.
         var oof = new double[5][];
         for (int k = 0; k < 5; k++) oof[k] = new double[rows.Count];
         var hasOof = new bool[rows.Count];
@@ -82,7 +84,7 @@ public sealed class LightGbmQuantileForecaster : ISpendForecaster, IDisposable
                 var bEnd = dates[Math.Min((fold + 1) * dates.Count / Folds, dates.Count) - 1];
                 var calIdx = Enumerable.Range(0, rows.Count).Where(i => rows[i].origin >= bStart && rows[i].origin <= bEnd).ToList();
                 var trIdx = Enumerable.Range(0, rows.Count).Where(i =>
-                    rows[i].origin.AddDays(rows[i].h) < bStart || rows[i].origin.AddDays(-90) > bEnd.AddDays(Settings.Horizon)).ToList();
+                    rows[i].origin.AddDays(rows[i].h) < bStart).ToList();
                 if (calIdx.Count < 30 || trIdx.Count < 300) continue;
                 var models = TrainAll(trIdx.Select(i => rows[i]).ToList());
                 var xc = calIdx.SelectMany(i => rows[i].x).ToArray();
@@ -200,7 +202,16 @@ public sealed class LightGbmQuantileForecaster : ISpendForecaster, IDisposable
     }
 
     public double[] Importance() => _models![2].GainImportance();
-    public void SaveModels(string dir) { for (int k = 0; k < Alphas.Length; k++) _models![k].Save(Path.Combine(dir, $"lightgbm_q{Alphas[k] * 100:00}.txt")); }
+    public void SaveModels(string dir)
+    {
+        for (int k = 0; k < Alphas.Length; k++) _models![k].Save(Path.Combine(dir, $"lightgbm_q{Alphas[k] * 100:00}.txt"));
+        File.WriteAllText(Path.Combine(dir, "forecast_config.json"), System.Text.Json.JsonSerializer.Serialize(new {
+            Version, FeatureBuilder.Names, FeatureBuilder.HorizonGrid, Alphas,
+            conformal = _conformal, lowOffsets = _cLo, highOffsets = _cHi, copulaLambda = _lambda,
+            fit = LastFit, calibration = "forward-only empirical offsets; no exchangeability guarantee"
+        }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true,
+            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
+    }
 
     private static int Bucket(int h) => h <= BucketEdges[0] ? 0 : h <= BucketEdges[1] ? 1 : 2;
 

@@ -19,7 +19,7 @@ using Occlet.Core.Reporting;
 
 Occlet.Core.Util.Fmt.Install();
 
-var positional = args.Where(a => !a.StartsWith("--")).ToList();
+var positional = args.Where((a, i) => !a.StartsWith("--") && (i == 0 || args[i - 1] != "--paths")).ToList();
 string root = FindRepoRoot();
 string ledgerPath = positional.ElementAtOrDefault(0) ?? Path.Combine(root, "data", "members_ledger.xlsx");
 string outDir = positional.ElementAtOrDefault(1) ?? Path.Combine(root, "output", "approach1");
@@ -49,15 +49,21 @@ foreach (var m in members)
 
 // 3) Honesty check: rolling-origin back-test of the bootstrap
 var metrics = new List<BacktestMetric>();
+var memberMetrics = new List<(string member, BacktestMetric metric)>();
 if (backtest)
 {
     Console.WriteLine("Back-testing (rolling origins, 2 weeks apart)...");
     var (points, windows) = Backtester.Run(members, forecaster);
     metrics = Backtester.Score(points, windows);
+    memberMetrics = Backtester.ScoreByMember(points, windows);
     foreach (var mt in metrics)
         Console.WriteLine($"  {mt.Horizon}d: in 80% band {mt.Coverage80:P0} (gate 75-85%: {(mt.PassesCoverageGate ? "PASS" : "FAIL")}), " +
                           $"below q10 {mt.BelowQ10:P0} (target ~10%: {(mt.PassesLowEndGate ? "PASS" : "FAIL")}), scaled pinball {mt.ScaledPinball:0.00} days");
 }
+
+foreach (var run in runs)
+    if (!ModelSelection.IsEligible(metrics) || !ModelSelection.IsEligible(memberMetrics.Where(x => x.member == run.Member.Id).Select(x => x.metric)))
+        run.Plan.BlockRecommendation("Model or member validation gates failed, or validation was not run.");
 
 // 4) Write results.xlsx, charts/*.svg, artifacts/*.json and REPORT.md
 ResultWriter.WriteAll(outDir, "Approach 1 — rudimentary bootstrap forecaster + scenario engine", runs, metrics);

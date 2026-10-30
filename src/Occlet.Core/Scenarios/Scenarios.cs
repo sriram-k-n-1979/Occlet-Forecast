@@ -32,7 +32,6 @@ public sealed class ScenarioState
     public List<FutureEvent> Events { get; }
     public ProductRules Rules { get; set; }
     public Behaviour Behaviour { get; set; }
-    public double[] Owed { get; }                 // borrowed principal still owed each day (true-slack numerator)
     public double ExtraDailySpend { get; set; }   // loan repayments counted as spending (true-slack denominator)
     public List<string> Notes { get; } = new();
     public List<(string lever, bool pass, string why)> Gates { get; } = new();
@@ -42,7 +41,6 @@ public sealed class ScenarioState
         Baseline = b;
         Events = b.Events.ToList();                 // a copy — the frozen baseline is never touched
         Rules = b.Rules; Behaviour = b.Behaviour;
-        Owed = new double[b.Horizon];
     }
 
     public int NextPaydayAfter(int day) => Events.Where(e => e.IsPayday && e.Day > day).Select(e => e.Day).DefaultIfEmpty(-1).Min();
@@ -79,20 +77,23 @@ public sealed class ScenarioEngine
     public ScenarioResult Run(IReadOnlyList<Lever> levers)
     {
         string key = string.Join("+", levers.Select(l => l.Id));
-        if (_cache.TryGetValue(key, out var hit)) return hit;
         if (_b.ComputeHash() != _b.FrozenHash)
             throw new InvalidOperationException("The frozen baseline was modified — scenarios must only edit copies.");
 
+        if (_cache.TryGetValue(key, out var hit)) return hit;
         var st = new ScenarioState(_b);
         foreach (var lever in levers)
         {
             lever.Apply(st);
-            if (lever.Gate != null) { var g = lever.Gate(st); st.Gates.Add((lever.Id, g.pass, g.why)); }
+
         }
+        // Evaluate affordability after every edit has been applied to the candidate.
+        foreach (var lever in levers)
+            if (lever.Gate != null) { var g = lever.Gate(st); st.Gates.Add((lever.Id, g.pass, g.why)); }
         var events = st.Events.OrderBy(e => e.Day).ThenByDescending(e => e.Amount).ToList();
         var r = Replay.Run(new Replay.Input(_b.StartBalance, _b.StartSavings, events, _b.Horizon, _b.Everyday, _b.AlertU,
-                                            _b.LeverU, _b.EventZ, _b.EventKeyIndex, st.Rules, st.Behaviour, _b.ItemLevel, _b.ItemIndex));
-        var res = new ScenarioResult { Levers = levers.ToList(), Summary = SlackSummary.From(r, _b.Ads, st.ExtraDailySpend, st.Owed), Result = r, State = st };
+                                            _b.LeverU, _b.EventZ, _b.EventKeyIndex, st.Rules, st.Behaviour, _b.ItemLevel, _b.ItemIndex, _b.CardFractions));
+        var res = new ScenarioResult { Levers = levers.ToList(), Summary = SlackSummary.From(r, _b.Ads, st.ExtraDailySpend), Result = r, State = st };
         _cache[key] = res;
         return res;
     }

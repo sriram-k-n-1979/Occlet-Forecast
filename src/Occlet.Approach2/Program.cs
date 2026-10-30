@@ -88,25 +88,14 @@ var table = finalists.Select(f =>
 {
     var ms = metrics.Where(m => m.Forecaster == f.Name).ToList();
     return (f, pinball: ms.Average(m => m.ScaledPinball), lowEndOk: ms.All(m => m.PassesLowEndGate),
-            coverOk: ms.Count(m => m.PassesCoverageGate), belowGap: ms.Average(m => Math.Abs(m.BelowQ10 - 0.10)));
+            coverOk: ms.Count(m => m.PassesCoverageGate), accepted: ModelSelection.IsEligible(ms), minimumOk: ms.Count(m => m.PassesMinimumGate), belowGap: ms.Average(m => Math.Abs(m.BelowQ10 - 0.10)));
 }).ToList();
-var incumbent = table.First(t => t.f == bootstrap);
-var eligible = table.Where(t => t.lowEndOk).ToList();
-ISpendForecaster champion; string why;
-if (eligible.Count == 0)
-{
-    var best = table.OrderBy(t => t.belowGap).First();
-    champion = best.f; why = $"No model passes the low-end gate at every horizon; {best.f.Name} is closest to 10% below q10.";
-}
-else
-{
-    var best = eligible.OrderBy(t => t.pinball).First();
-    if (best.f == bootstrap) { champion = bootstrap; why = "Bootstrap passes the low-end gate and no challenger beats it."; }
-    else if (!incumbent.lowEndOk) { champion = best.f; why = $"Incumbent bootstrap fails the low-end gate; {best.f.Name} passes it with the lowest loss."; }
-    else if (best.pinball <= incumbent.pinball * (1 - ChallengerMargin)) { champion = best.f; why = $"{best.f.Name} beats the bootstrap's loss by {1 - best.pinball / incumbent.pinball:P0} (≥ {ChallengerMargin:P0} margin) and passes the gate."; }
-    else { champion = bootstrap; why = $"{best.f.Name} passes the gate but improves loss by only {1 - best.pinball / incumbent.pinball:P0} (< {ChallengerMargin:P0} margin) — incumbent kept."; }
-}
-Console.WriteLine($"Champion: {champion.Name} — {why}");
+string? championName = ModelSelection.Select(metrics.Where(m => finalists.Any(f => f.Name == m.Forecaster)), margin: ChallengerMargin);
+ISpendForecaster? champion = finalists.FirstOrDefault(f => f.Name == championName);
+string why = champion == null
+    ? "No model passes endpoint coverage, lower-tail and path-minimum gates at every horizon. Abstain; results are experimental."
+    : "Selected by endpoint loss among models passing all endpoint and path-minimum gates; 5% incumbent improvement margin applied.";
+Console.WriteLine($"Champion: {champion?.Name ?? "NONE"} — {why}");
 
 // ── 3) Problem 1 + 2 on the latest data, for every finalist ──────────────────
 var runs = new List<MemberRun>();
@@ -120,6 +109,11 @@ foreach (var f in finalists)
     foreach (var m in members.Where(m => m.HistoryDays >= Settings.MinHistoryDays))
     {
         var run = Pipeline.RunMember(m, f, origin, Path.Combine(outDir, "artifacts"), schema);
+        // Retain hypothetical plans for model comparison, but withhold member advice unless
+        // this model and this member's historical cohort both pass validation.
+        var memberMetrics = byMember.Where(x => x.member == m.Id && x.metric.Forecaster == f.Name).Select(x => x.metric);
+        if (!table.Single(t => t.f == f).accepted || !ModelSelection.IsEligible(memberMetrics))
+            run.Plan.BlockRecommendation("Model or member validation gates failed, or insufficient backtest history.");
         runs.Add(run);
         if (f == lightgbm)
             foreach (var (feat, val, contrib) in lightgbm.Explain(BaselineBuilder.Context(m, origin)).Take(6))
@@ -146,8 +140,8 @@ var agreement = members.Where(m => runs.Any(r => r.Member.Id == m.Id)).Select(m 
 
 void ExtraSheets(Occlet.Core.Io.XlsxWriter x)
 {
-    x.AddSheet("Model_Selection", new[] { "Forecaster", "AvgScaledPinball", "PassesLowEndGateAllHorizons", "HorizonsPassingCoverageGate", "AvgGapFrom10%BelowQ10", "Champion" },
-        table.Select(t => new object?[] { t.f.Name, t.pinball, t.lowEndOk, t.coverOk, t.belowGap, t.f == champion ? "CHAMPION — " + why : "" }));
+    x.AddSheet("Model_Selection", new[] { "Forecaster", "AvgScaledPinball", "PassesLowEndGateAllHorizons", "HorizonsPassingCoverageGate", "AvgGapFrom10%BelowQ10", "MinimumHorizonsPassing", "AllGatesPass", "Champion" },
+        table.Select(t => new object?[] { t.f.Name, t.pinball, t.lowEndOk, t.coverOk, t.belowGap, t.minimumOk, t.accepted, t.f == champion ? "CHAMPION — " + why : "" }));
     x.AddSheet("Backtest_ByMember", new[] { "MemberID", "Forecaster", "Horizon", "DaysScored", "Coverage80", "BelowQ10", "AboveQ90", "ScaledPinball", "MAE q50 (days)" },
         byMember.Select(b => new object?[] { b.member, b.metric.Forecaster, b.metric.Horizon, b.metric.DaysScored, b.metric.Coverage80, b.metric.BelowQ10, b.metric.AboveQ90, b.metric.ScaledPinball, b.metric.MaeQ50Days }));
     x.AddSheet("Backtest_ByOrigin", new[] { "Forecaster", "Origin", "Members", "DaysScored (90d windows)", "Coverage80", "BelowQ10" }, byOrigin);
@@ -172,11 +166,11 @@ void ExtraSheets(Occlet.Core.Io.XlsxWriter x)
 void ExtraMarkdown(StringBuilder sb)
 {
     sb.AppendLine("## Champion selection").AppendLine();
-    sb.AppendLine("| Forecaster | Avg scaled pinball (days) | Low-end gate at 30/60/90d | Horizons inside 75–85% band | Champion |");
-    sb.AppendLine("|---|---:|---|---:|---|");
+    sb.AppendLine("| Forecaster | Avg scaled pinball (days) | Low-end gate at 30/60/90d | Endpoint coverage passes | Minimum gates pass | Champion |");
+    sb.AppendLine("|---|---:|---|---:|---:|---|");
     foreach (var t in table)
-        sb.AppendLine($"| {t.f.Name} | {t.pinball:0.00} | {(t.lowEndOk ? "PASS" : "FAIL")} | {t.coverOk}/3 | {(t.f == champion ? "**yes**" : "")} |");
-    sb.AppendLine().AppendLine($"**{champion.Name}** — {why}").AppendLine();
+        sb.AppendLine($"| {t.f.Name} | {t.pinball:0.00} | {(t.lowEndOk ? "PASS" : "FAIL")} | {t.coverOk}/3 | {t.minimumOk}/3 | {(t.f == champion ? "**yes**" : "")} |");
+    sb.AppendLine().AppendLine($"**{champion?.Name ?? "NONE"}** — {why}").AppendLine();
     sb.AppendLine("## Do the models agree on the recommendation?").AppendLine();
     sb.AppendLine("| Member | " + string.Join(" | ", finalists.Select(f => f.Name)) + " | Agree |");
     sb.AppendLine("|---|" + string.Concat(finalists.Select(_ => "---|")) + "---|");
@@ -186,7 +180,7 @@ void ExtraMarkdown(StringBuilder sb)
     {
         sb.AppendLine("## LightGBM diagnostics (final fit)").AppendLine();
         sb.AppendLine($"- {fit.TrainRows:N0} training rows, {fit.CalibrationRows:N0} calibration rows, {fit.Members} members (one global model per quantile).");
-        sb.AppendLine($"- Calibration rows inside the raw q10–q90 band: {fit.RawCoverageCal:P0} → after conformal adjustment {fit.CalibratedCoverageCal:P0}. Spend above q90 (= balance below its q10): {fit.RawBelowQ10Cal:P0} → {fit.CalibratedBelowQ10Cal:P0}.");
+        sb.AppendLine($"- Calibration rows inside the raw q10–q90 band: {fit.RawCoverageCal:P0} → after conformal adjustment {fit.CalibratedCoverageCal:P0}. Spend above q90 (spending diagnostic, not replayed balance calibration): {fit.RawBelowQ10Cal:P0} → {fit.CalibratedBelowQ10Cal:P0}.");
         sb.AppendLine($"- Copula: observed correlation of 7-day vs 90-day surprises {fit.CopulaCorrObserved:0.00} → persistent share λ = {fit.CopulaLambda:0.00}.");
         sb.AppendLine("- Top features by gain (q50 model): " + string.Join(", ", FeatureBuilder.Names.Select((n, i) => (n, g: importance[i]))
             .OrderByDescending(t => t.g).Take(6).Select(t => $"`{t.n}` {t.g / importance.Sum():P0}")) + ".");

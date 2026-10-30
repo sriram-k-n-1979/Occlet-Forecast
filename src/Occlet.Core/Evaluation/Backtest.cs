@@ -13,7 +13,13 @@ public sealed record BacktestWindow(string Forecaster, string MemberId, DateOnly
 
 public sealed record BacktestMetric(string Forecaster, int Horizon, int Windows, int DaysScored,
     double Coverage80, double BelowQ10, double AboveQ90, double ScaledPinball, double MaeQ50Days,
-    double MinCoverage80, double MinBelowQ10, bool PassesCoverageGate, bool PassesLowEndGate);
+    double MinCoverage80, double MinBelowQ10, bool PassesCoverageGate, bool PassesLowEndGate,
+    int EndpointsScored, double WindowCoverage80, double WindowBelowQ10, double WindowScaledPinball,
+    bool PassesMinimumGate)
+{
+    public bool PassesAllGates => EndpointsScored > 0 && Windows > 0 &&
+        PassesCoverageGate && PassesLowEndGate && PassesMinimumGate;
+}
 
 /// <summary>
 /// Rolling-origin back-test: pretend "today" was each of several earlier dates (two weeks apart),
@@ -76,7 +82,7 @@ public static class Backtester
     private static double Pinball(double q, double y, double f) => Math.Max(q * (y - f), (q - 1) * (y - f));
 
     /// <summary>
-    /// Per horizon: share of real days inside the 80% band (Occlet gate: 75–85%), share below q10
+    /// Per horizon: endpoint observations inside the 80% band (Occlet gate: 75–85%), share below q10
     /// (the low-end honesty test — target ≈ 10%), scaled pinball loss (in days of spending, so members
     /// of different sizes are comparable), and the same honesty checks for the LOWEST balance in each window.
     /// </summary>
@@ -85,7 +91,12 @@ public static class Backtester
         var w = windows.ToList();
         return points.GroupBy(p => (p.Forecaster, p.Horizon)).OrderBy(g => g.Key.Forecaster).ThenBy(g => g.Key.Horizon).Select(g =>
         {
-            var pts = g.ToList();
+            var daily = g.ToList();
+            var pts = daily.Where(p => p.Day == p.Horizon - 1).ToList();
+            if (pts.Count == 0) throw new ArgumentException("Missing endpoint observations for a horizon.");
+            double windowCov = daily.Count(p => p.Actual >= p.Q10 && p.Actual <= p.Q90) / (double)daily.Count;
+            double windowBelow = daily.Count(p => p.Actual < p.Q10) / (double)daily.Count;
+            double windowPin = daily.Average(p => (Pinball(0.1, p.Actual, p.Q10) + Pinball(0.5, p.Actual, p.Q50) + Pinball(0.9, p.Actual, p.Q90)) / 3 / p.Ads);
             double cov = pts.Count(p => p.Actual >= p.Q10 && p.Actual <= p.Q90) / (double)pts.Count;
             double below = pts.Count(p => p.Actual < p.Q10) / (double)pts.Count;
             double above = pts.Count(p => p.Actual > p.Q90) / (double)pts.Count;
@@ -94,8 +105,10 @@ public static class Backtester
             var ww = w.Where(x => x.Forecaster == g.Key.Forecaster && x.Horizon == g.Key.Horizon).ToList();
             double minCov = ww.Count == 0 ? double.NaN : ww.Count(x => x.ActualMin >= x.MinQ10 && x.ActualMin <= x.MinQ90) / (double)ww.Count;
             double minBelow = ww.Count == 0 ? double.NaN : ww.Count(x => x.ActualMin < x.MinQ10) / (double)ww.Count;
-            return new BacktestMetric(g.Key.Forecaster, g.Key.Horizon, ww.Count, pts.Count, cov, below, above, pin, mae, minCov, minBelow,
-                                      cov >= 0.75 && cov <= 0.85, below >= 0.05 && below <= 0.15);
+            return new BacktestMetric(g.Key.Forecaster, g.Key.Horizon, ww.Count, daily.Count, cov, below, above, pin, mae, minCov, minBelow,
+                                      cov >= 0.75 && cov <= 0.85, below >= 0.05 && below <= 0.15,
+                                      pts.Count, windowCov, windowBelow, windowPin,
+                                      minCov >= 0.75 && minCov <= 0.85 && minBelow >= 0.05 && minBelow <= 0.15);
         }).ToList();
     }
 }

@@ -18,6 +18,8 @@ public sealed class Plan
     public List<PlanStep> Steps { get; } = new();
     public List<CandidateLog> Log { get; } = new();
     public string Status { get; set; } = "";
+    public string? ValidationBlock { get; private set; }
+    public void BlockRecommendation(string reason) { ValidationBlock = reason; Status = "UNVALIDATED: " + reason + " " + Status; }
     /// <summary>Set when typical spending exceeds income: levers can move dates, not close the gap.</summary>
     public double MonthlySurplus { get; set; }
     public bool StructuralGap => MonthlySurplus < 0;
@@ -37,6 +39,7 @@ public sealed class Plan
     /// <summary>Member view: one plain sentence.</summary>
     public string MemberSentence()
     {
+        if (ValidationBlock != null) return "No validated recommendation is available. A specialist must review the forecast; scenario results are experimental only.";
         var b = Baseline.Summary; var f = Final.Summary;
         if (Steps.Count == 0)
             return BaselineScore >= Settings.SlackGoalDays
@@ -133,6 +136,8 @@ public static class Recommender
         var ci = Util.Fmt.Culture;
         var failed = res.State.Gates.FirstOrDefault(g => !g.pass);
         if (failed.lever != null) return (false, $"gate failed ({failed.lever}): {failed.why}");
+        if (res.Summary.ExpUnpaidBills > current.Summary.ExpUnpaidBills + 0.01)
+            return (false, "increases outstanding unpaid obligations; specialist review required");
         double extraDeclines = res.Summary.ExpBillDeclines - current.Summary.ExpBillDeclines;
         if (extraDeclines > Settings.MaxExtraBillDeclines)
             return (false, string.Format(ci, "turns fees into ~{0:0.0} declined bill payments per 90 days — needs a member conversation, not auto-adoption", extraDeclines));

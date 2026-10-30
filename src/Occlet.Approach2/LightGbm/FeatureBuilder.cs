@@ -20,7 +20,7 @@ internal sealed class FeatureBuilder
         "cushion_days", "overdraft_fees_90d", "days_to_payday", "known_net_flow_ratio", "tight_windows", "tenure_days",
         "courtesy_pay", "direct_deposit", "alerts_on", "origin_day_of_month", "origin_day_of_week", "income_cv", "log_spend_scale",
     };
-    public static readonly int[] HorizonGrid = { 1, 2, 3, 5, 7, 10, 14, 21, 28, 35, 45, 60, 75, 90 };
+    public static readonly int[] HorizonGrid = { 1, 2, 3, 5, 7, 10, 14, 21, 28, 30, 35, 45, 60, 75, 90 };
 
     public MemberHistory History { get; }
     public IReadOnlyList<RecurringItem> Recurring { get; }
@@ -58,20 +58,31 @@ internal sealed class FeatureBuilder
     }
 
     /// <summary>The member's spending "scale" — normal pace over the last 90 days (never below $1/day).</summary>
-    public double Scale(DateOnly origin) => Math.Max(TrailingMean(origin, 90), 1.0);
+    public double Scale(DateOnly origin) => origin < History.LastDate
+        ? FromHistory(History.UpTo(origin)).Scale(origin) : Math.Max(TrailingMean(origin, 90), 1.0);
 
     public bool HasHistoryAt(DateOnly origin) => Index(origin) >= Settings.MinHistoryDays - 1;
 
-    /// <summary>Label: everyday spend over (origin, origin+h] ÷ (scale × h). Requires origin+h ≤ last history date.</summary>
-    public double Target(DateOnly origin, int h)
+    /// <summary>
+    /// Labels use future observations, but the origin's recurring classification and scale stay fixed.
+    /// Unobserved attempted spending is still a trailing-imputation proxy, not ground truth demand.
+    /// </summary>
+    public double[] Targets(MemberHistory observed, IReadOnlyList<int> horizons)
     {
-        int s = Index(origin) + 1, e = s + h - 1;
-        return (_prefix[e + 1] - _prefix[s]) / (Scale(origin) * h);
+        var origin = History.LastDate;
+        if (horizons.Any(h => h <= 0 || origin.AddDays(h) > observed.LastDate))
+            throw new ArgumentException("Every label must be fully observed.");
+        var future = EverydaySeries.Build(observed.UpTo(origin.AddDays(horizons.Max())), Recurring);
+        int start = origin.DayNumber - future.Start.DayNumber + 1;
+        double scale = Scale(origin);
+        return horizons.Select(h => future.Imputed.Skip(start).Take(h).Sum() / (scale * h)).ToArray();
     }
 
     /// <summary>Feature rows for one origin and several horizons (row-major).</summary>
     public double[] Rows(DateOnly origin, IReadOnlyList<int> horizons)
     {
+        if (origin > History.LastDate) throw new ArgumentException("Feature origin exceeds available history.");
+        if (origin < History.LastDate) return FromHistory(History.UpTo(origin)).Rows(origin, horizons);
         int nf = Names.Length;
         var x = new double[horizons.Count * nf];
         double scale = Scale(origin);

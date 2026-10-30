@@ -33,10 +33,16 @@ public sealed class ReplayResult
     public double[] BillDeclines { get; }
     public double[] CardDeclined { get; }   // dollars of card purchases that did not fit
     public double[] SavingsPulled { get; }
+    public double[][] SavingsPaths { get; }
+    public double[][] OutstandingPrincipal { get; }
+    public double[][] UnpaidBills { get; }
 
     public ReplayResult(int paths, int horizon)
     {
         Paths = Enumerable.Range(0, paths).Select(_ => new double[horizon]).ToArray();
+        SavingsPaths = Enumerable.Range(0, paths).Select(_ => new double[horizon]).ToArray();
+        OutstandingPrincipal = Enumerable.Range(0, paths).Select(_ => new double[horizon]).ToArray();
+        UnpaidBills = Enumerable.Range(0, paths).Select(_ => new double[horizon]).ToArray();
         FeeCount = new double[paths]; FeeDollars = new double[paths]; BillDeclines = new double[paths];
         CardDeclined = new double[paths]; SavingsPulled = new double[paths];
     }
@@ -53,96 +59,127 @@ public static class Replay
         double[][] Everyday, double[][] AlertU, double[] LeverU,
         double[][] EventZ, IReadOnlyDictionary<string, int> EventKeyIndex,
         ProductRules Rules, Behaviour Behaviour,
-        double[][]? ItemLevel = null, IReadOnlyDictionary<string, int>? ItemIndex = null);
+        double[][]? ItemLevel = null, IReadOnlyDictionary<string, int>? ItemIndex = null, double[][][]? CardFractions = null);
 
     public static ReplayResult Run(Input inp)
     {
         int P = inp.Everyday.Length, H = inp.Horizon;
+        if (P == 0 || H <= 0 || inp.Everyday.Any(path => path.Length != H || path.Any(v => !double.IsFinite(v) || v < 0)))
+            throw new ArgumentException("Replay requires nonempty, finite nonnegative daily spending paths.");
+        if (!double.IsFinite(inp.StartBalance) || !double.IsFinite(inp.StartSavings) || inp.StartSavings < 0)
+            throw new ArgumentException("Invalid opening account balances.");
+        if (inp.Events.Select(e => e.Key).Distinct().Count() != inp.Events.Count || inp.Events.Any(e => !double.IsFinite(e.Amount)))
+            throw new ArgumentException("Events need unique keys and finite amounts.");
+        if (inp.CardFractions != null && (inp.CardFractions.Length != P || inp.CardFractions.Any(path => path.Length != H ||
+            path.Any(day => day.Length == 0 || day.Any(v => !double.IsFinite(v) || v < 0) || Math.Abs(day.Sum() - 1) > 1e-8))))
+            throw new ArgumentException("Card proportions must sum to one for every path and day.");
         var byDay = Enumerable.Range(0, H).Select(_ => new List<FutureEvent>()).ToArray();
         foreach (var e in inp.Events) if (e.Day >= 0 && e.Day < H) byDay[e.Day].Add(e);
 
         var res = new ReplayResult(P, H);
         var r = inp.Rules; var bh = inp.Behaviour;
-        var bills = new List<(double amount, int attempt)>();
-        var retry = new List<(double amount, int attempt)>();
-
         for (int p = 0; p < P; p++)
         {
-            double bal = inp.StartBalance, sav = inp.StartSavings, cutLeft = 0;
+            double bal = inp.StartBalance, sav = inp.StartSavings, principal = 0, cutLeft = 0;
             int cutDays = 0;
-            retry.Clear();
+            var pending = new Dictionary<string, (FutureEvent ev, double amount, int attempts)>();
             double factor = inp.LeverU[p] < bh.Adherence ? bh.SpendFactorIfAdhering : 1.0;
-            var row = res.Paths[p];
-
             for (int d = 0; d < H; d++)
             {
                 int feesToday = 0;
-                bills.Clear(); bills.AddRange(retry); retry.Clear();
-
-                // 1) money in first, then collect today's bills
+                // Failed obligations remain outstanding even when automatic retries stop.
+                var due = pending.Values.Where(x => x.attempts < 3 && x.ev.Channel != "Card").ToList();
                 foreach (var e in byDay[d])
                 {
-                    double amt = Draw(e, p, inp);
-                    if (amt >= 0) bal += amt; else bills.Add((-amt, 0));
-                }
-
-                // 2) bills, largest first
-                bills.Sort((a, b) => b.amount.CompareTo(a.amount));
-                foreach (var (amt, attempt) in bills)
-                {
-                    if (r.SavingsFirst) PullFromSavings(ref bal, ref sav, amt, res, p);
-                    bool shortfall = amt > bal + 1e-9;
-                    if (r.CourtesyPay)
+                    double amt = Money(Draw(e, p, inp));
+                    if (amt >= 0)
                     {
-                        bal -= amt;                                                   // paid even if it overdraws ...
-                        if (shortfall && amt >= r.MinItemForFee && feesToday < r.MaxFeesPerDay)
-                        { bal -= r.OdFee; feesToday++; res.FeeCount[p]++; res.FeeDollars[p] += r.OdFee; } // ... for a fee
+                        // Positive internal transfer is savings to checking, not external income.
+                        if (e.Category == "Transfer")
+                        {
+                            if (sav + 1e-9 < amt) continue;
+                            sav = Money(sav - amt);
+                        }
+                        bal = Money(bal + amt);
+                        principal = Money(principal + e.PrincipalChange);
                     }
-                    else if (shortfall)
+                    else due.Add((e, -amt, 0));
+                }
+
+                bool Pay(double amount, bool card, bool transfer)
+                {
+                    if (amount <= 0) return true;
+                    // Do not draw savings to fund a transfer back into savings.
+                    if (r.SavingsFirst && !transfer)
                     {
-                        res.BillDeclines[p]++;                                        // declined: nothing leaves ...
-                        bal -= r.NsfFee; res.FeeDollars[p] += r.NsfFee;
-                        if (attempt < 2) retry.Add((amt, attempt + 1));               // ... and it is presented again tomorrow
+                        double gap = Math.Max(amount - bal, 0);
+                        // Avoid draining savings for an authorization that still cannot succeed.
+                        if ((card ? r.CardOverdraftOptIn : r.CourtesyPay) || bal + sav + 1e-9 >= amount)
+                        {
+                            double pull = Math.Min(gap, sav);
+                            sav = Money(sav - pull); bal = Money(bal + pull); res.SavingsPulled[p] += pull;
+                        }
                     }
-                    else bal -= amt;
+                    bool shortfall = amount > bal + 1e-9;
+                    bool covered = card ? r.CardOverdraftOptIn : r.CourtesyPay;
+                    if (shortfall && !covered)
+                    {
+                        if (card) res.CardDeclined[p] += amount;
+                        else { res.BillDeclines[p]++; bal = Money(bal - r.NsfFee); res.FeeDollars[p] += r.NsfFee; }
+                        return false;
+                    }
+                    bal = Money(bal - amount);
+                    if (transfer) sav = Money(sav + amount);
+                    if (shortfall && amount >= r.MinItemForFee && feesToday < r.MaxFeesPerDay)
+                    {
+                        bal = Money(bal - r.OdFee); feesToday++; res.FeeCount[p]++; res.FeeDollars[p] += r.OdFee;
+                    }
+                    return true;
                 }
 
-                // 3) everyday card spending (minus any cut the member is making after an alert)
-                double spend = inp.Everyday[p][d] * factor;
-                if (cutDays > 0) { double c = cutLeft / cutDays; spend = Math.Max(0, spend - c); cutLeft -= c; cutDays--; }
-                if (r.SavingsFirst) PullFromSavings(ref bal, ref sav, spend, res, p);
-                if (r.CardOverdraftOptIn)
+                // Preserve channel and identity. Non-card debits post largest first, then card events.
+                foreach (var (e, amount, attempts) in due.OrderBy(x => x.ev.Channel == "Card" ? 1 : 0)
+                    .ThenByDescending(x => x.ev.Channel == "Card" ? 0 : x.amount))
                 {
-                    bool shortfall = spend > bal + 1e-9;
-                    bal -= spend;
-                    if (shortfall && spend >= r.MinItemForFee && feesToday < r.MaxFeesPerDay)
-                    { bal -= r.OdFee; res.FeeCount[p]++; res.FeeDollars[p] += r.OdFee; }
-                }
-                else
-                {
-                    // Reg E: without opt-in, a card purchase that does not fit is simply declined
-                    double fits = Math.Max(bal, 0), paid = Math.Min(spend, fits);
-                    res.CardDeclined[p] += spend - paid;
-                    bal -= paid;
+                    bool paid = Pay(amount, e.Channel == "Card", e.Category == "Transfer");
+                    if (paid)
+                    {
+                        pending.Remove(e.Key);
+                        // Principal is reduced only after the corresponding repayment actually posts.
+                        principal = Money(Math.Max(0, principal + e.PrincipalChange));
+                    }
+                    else if (e.Category != "Transfer") pending[e.Key] = (e, amount, attempts + 1);
                 }
 
-                // 4) learned lever: a low-balance alert makes some members trim spending for a few days
+                double spend = Math.Max(0, inp.Everyday[p][d] * factor);
+                if (cutDays > 0)
+                {
+                    double cut = Math.Min(spend, cutLeft / cutDays);
+                    spend -= cut; cutLeft -= cut; cutDays--;
+                }
+                // Daily model totals need an explicit ticket-size assumption. Baselines sample
+                // historical within-day proportions once; a standalone replay defaults to one ticket.
+                var fractions = inp.CardFractions?[p][d] ?? new[] { 1.0 };
+                double total = Money(spend), allocated = 0;
+                for (int t = 0; t < fractions.Length; t++)
+                {
+                    double remaining = Money(total - allocated);
+                    double amount = t == fractions.Length - 1 ? remaining : Math.Clamp(Money(total * fractions[t]), 0, remaining);
+                    allocated += amount;
+                    Pay(amount, card: true, transfer: false);
+                }
                 if (bh.AlertThreshold is double th && bal < th && cutDays == 0 && inp.AlertU[p][d] < bh.AlertResponseRate)
                 { cutLeft = bh.AlertCut; cutDays = bh.AlertDays; }
-
-                row[d] = bal;
+                res.Paths[p][d] = bal;
+                res.SavingsPaths[p][d] = sav;
+                res.OutstandingPrincipal[p][d] = principal;
+                res.UnpaidBills[p][d] = pending.Values.Sum(x => x.amount);
             }
         }
         return res;
     }
 
-    private static void PullFromSavings(ref double bal, ref double sav, double need, ReplayResult res, int p)
-    {
-        double gap = need - bal;
-        if (gap <= 0 || sav <= 0) return;
-        double pull = Math.Min(gap, sav);
-        sav -= pull; bal += pull; res.SavingsPulled[p] += pull;
-    }
+    private static double Money(double value) => Math.Round(value, 2, MidpointRounding.ToEven);
 
     /// <summary>Known dates, uncertain amounts: a gig payout with CV 30% gets a different (but repeatable) amount in each future.</summary>
     private static double Draw(FutureEvent e, int p, Input inp)

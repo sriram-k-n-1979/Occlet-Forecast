@@ -1,12 +1,12 @@
 Loaded 5 members; forecast origin 2026-10-27
 LightGBM: lib_lightgbm loaded
 Back-testing 4 forecasters over up to 12 origins...
-  Bootstrap       2.2s  30d: band 80% below-q10 13% pinball 0.81  60d: band 80% below-q10 14% pinball 1.13  90d: band 79% below-q10 15% pinball 1.33
-  LightGBM       19.0s  30d: band 77% below-q10 13% pinball 0.83  60d: band 74% below-q10 16% pinball 1.21  90d: band 73% below-q10 19% pinball 1.55
-  LightGBM-raw    7.3s  30d: band 56% below-q10 21% pinball 0.88  60d: band 55% below-q10 24% pinball 1.25  90d: band 54% below-q10 28% pinball 1.54
-  StateSpace      2.5s  30d: band 81% below-q10 12% pinball 0.80  60d: band 79% below-q10 14% pinball 1.10  90d: band 79% below-q10 15% pinball 1.27
-Champion: Bootstrap — Bootstrap passes the low-end gate and no challenger beats it.
-  Bootstrap: A 0.0→3.4  B 11.3→11.3  C 56.7→56.7  D 14.8→14.8  E -8.7→-7.8
-  LightGBM: A -1.3→2.1  B 10.1→10.1  C 56.3→56.3  D 15.5→15.5  E -9.0→-8.6
-  StateSpace: A -2.1→0.3  B 8.9→8.9  C 56.7→56.7  D 14.3→14.3  E -8.7→-8.0
-Wrote /home/claude/Occlet-Forecast/output/approach2 in 50.2s
+  Bootstrap       3.3s  30d: band 79% below-q10 15% pinball 1.09  60d: band 77% below-q10 19% pinball 1.62  90d: band 75% below-q10 23% pinball 2.05
+  LightGBM       11.8s  30d: band 77% below-q10 15% pinball 1.19  60d: band 71% below-q10 23% pinball 2.15  90d: band 75% below-q10 21% pinball 3.04
+  LightGBM-raw    6.6s  30d: band 42% below-q10 33% pinball 1.26  60d: band 54% below-q10 31% pinball 1.98  90d: band 58% below-q10 27% pinball 2.61
+  StateSpace      3.1s  30d: band 77% below-q10 15% pinball 1.07  60d: band 75% below-q10 21% pinball 1.54  90d: band 79% below-q10 19% pinball 1.96
+Champion: NONE — No model passes endpoint coverage, lower-tail and path-minimum gates at every horizon. Abstain; results are experimental.
+  Bootstrap: A 0.0→1.7  B 11.3→11.3  C 56.6→56.6  D 14.8→14.8  E -8.7→-7.7
+  LightGBM: A -1.7→0.1  B 9.7→9.7  C 56.4→56.4  D 15.6→15.6  E -9.0→-8.6
+  StateSpace: A -1.5→0.3  B 8.9→8.9  C 56.7→56.7  D 14.3→14.3  E -8.6→-7.8
+Wrote output/approach2 in 55.2s
